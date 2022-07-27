@@ -1,0 +1,28 @@
+@import '~antd/dist/antd.css';
+
+:root {
+    --heigt: 91vh;
+}
+
+.content.left-column {
+    flex: 25%;
+    text-align: left;
+    text-indent: 1vh;
+    border-right: black;
+    border-right: 5px solid black;
+    height: var(--heigt);
+}
+
+.content.main-column {
+    text-align: left;
+    flex: 75%;
+    height: var(--heigt);
+}
+
+.content.parent {
+    max-height: var(--heigt);
+    font-family: "Comic Sans MS";
+    font-size: calc(10px + 2vmin);
+    color: white;
+    display: flex;
+}

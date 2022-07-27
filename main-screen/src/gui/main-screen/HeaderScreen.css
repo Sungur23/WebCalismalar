@@ -1,0 +1,28 @@
+@import '~antd/dist/antd.css';
+
+.header.logo-column {
+    flex: 45%;
+    text-align: left;
+    text-indent: 1vh;
+}
+
+.header.logo {
+    object-fit: none;
+    object-position: 1vh;
+    /*object-position: left;*/
+}
+
+.header.text-column {
+    text-align: left;
+    flex: 55%;
+}
+
+.header.header {
+    background-color: #424949;
+    height: 4vh;
+    font-family: "Comic Sans MS";
+    font-size: calc(15px + 1vmin);
+    color: white;
+    display: flex;
+    border-bottom: 2px solid black;
+}

@@ -1,0 +1,26 @@
+@import '~antd/dist/antd.css';
+
+.bottom.left-column {
+    flex: 25%;
+    text-align: left;
+    text-indent: 1vh;
+}
+
+.bottom.content-column {
+    text-align: left;
+    flex: 70%;
+}
+
+.bottom.time-column {
+    text-align: center;
+    flex: 5%;
+    align-self: flex-end;
+}
+
+.bottom.parent {
+    background-color: #424949;
+    height: 5vh;
+    color: white;
+    display: flex;
+    border-top: 2px solid black;
+}

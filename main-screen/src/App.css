@@ -1,0 +1,7 @@
+@import '~antd/dist/antd.css';
+
+.parent {
+    text-align: center;
+    background-color: #4e515e;
+    height: 100vh;
+}
