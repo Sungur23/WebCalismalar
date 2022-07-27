@@ -1,5 +1,6 @@
 import './BottomScreen.css';
 import {useEffect, useState} from "react";
+import JobManagerScreen from "../job/JobManagerScreen";
 
 const BottomScreen: React.FC = () => {
 
@@ -14,7 +15,8 @@ const BottomScreen: React.FC = () => {
 
     return (
         <div className="bottom parent">
-            <div className="bottom left-column"></div>
+            <div className="bottom left-column">
+            </div>
             <div className="bottom content-column"></div>
             <div className="bottom time-column">
                 {time}<br/>{date}

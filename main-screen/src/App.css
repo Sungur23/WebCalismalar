@@ -4,4 +4,7 @@
     text-align: center;
     background-color: #4e515e;
     height: 100vh;
+    user-select: none;
+    user-focus-pointer: none;
+    
 }

@@ -9,7 +9,7 @@ const HeaderScreen: React.FC = () => {
                 <img src={aselsan_logo} className="header logo"/>
             </div>
             <div className="header text-column">
-                AKINCI KGÜ
+                Kullanıcı Arayüz Yazılımı
             </div>
         </div>
     );

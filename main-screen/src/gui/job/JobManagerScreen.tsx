@@ -1,30 +1,58 @@
 import './JobManagerScreen.css';
-import React, {useEffect, useState} from 'react';
-import {Avatar, Segmented} from 'antd';
-import {UserOutlined} from '@ant-design/icons';
-import SegmentedPicker from "./SegmentedPicker";
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Segmented} from 'antd';
+import {AppstoreOutlined} from '@ant-design/icons';
 
 const JobManagerScreen: React.FC = () => {
-    const [selection, setSelection] = useState(0);
-    const options = ['OFF', 'TIMF', 'SAR', 'ISAR'];
 
-    // const [value, setValue] = useState('2021');
+    const [isDisabled, setModesDisabled] = useState(false);
+    const modeValues = ['STNDBY', 'TIMF', 'SAR', 'ISAR'];
+    const [value, setValue] = useState(modeValues[0]);
+
+    const modes = [
+        {
+            label: <div style={{color: "darkblue"}}>STNDBY</div>,
+            value: modeValues[0],
+            // icon: <BarsOutlined/>,
+        },
+        {
+            label: 'TIMF',
+            value: modeValues[1],
+            icon: <AppstoreOutlined/>,
+        },
+        {
+            label: 'SAR',
+            value: modeValues[2],
+            icon: <AppstoreOutlined/>,
+        },
+        {
+            label: 'ISAR',
+            value: modeValues[3],
+            icon: <AppstoreOutlined/>,
+        },];
+
+    const handleChange = (val: string) => {
+        setValue(val)
+    };
+    const handleButton = () => {
+        setValue(modeValues[0])
+        setModesDisabled(!isDisabled);
+        // alert(isDisabled);
+    };
+    const segmentedMenu = (
+        <Segmented
+            id={'segmented-id'}
+            options={modes}
+            value={value}
+            disabled={isDisabled}
+            onChange={(val) => handleChange(val.toString())}
+        />
+    );
+
     return (
         <div className="job parent">
-            {/*<Segmented options={['Daily', 'Weekly', 'Monthly']} onClick={() => {*/}
-            {/*    setValue("2023");*/}
-            {/*    alert("TextBox Value is ");*/}
-            {/*}}/>;*/}
-
-            <SegmentedPicker
-                options={options}
-                selection={selection}
-                onSelectionChange={(newSelection) => {
-                    setSelection(newSelection);
-                    alert(newSelection);
-                }}
-            />
-
+            {segmentedMenu}
+            <button hidden={true} onClick={handleButton}> T</button>
         </div>
     );
 }

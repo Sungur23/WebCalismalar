@@ -2,8 +2,6 @@
 
 .bottom.left-column {
     flex: 25%;
-    text-align: left;
-    text-indent: 1vh;
 }
 
 .bottom.content-column {
