@@ -1,0 +1,15 @@
+@import '~antd/dist/antd.css';
+
+.solmenu {
+    /*box-sizing: border-box;*/
+    /*display: inline-block;*/
+    align-items: center;
+    position: center;
+    text-align: center;
+    justify-items: center;
+}
+
+.solmenu.menu {
+    text-align: center;
+    width: 50%;
+}

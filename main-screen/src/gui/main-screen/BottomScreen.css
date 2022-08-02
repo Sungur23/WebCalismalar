@@ -6,7 +6,18 @@
 
 .bottom.content-column {
     text-align: left;
-    flex: 70%;
+    flex: 22.5%;
+}
+
+.bottom.center-column {
+    flex: 5%;
+    background-image: url("../../img/Akinci-2.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.bottom.right-column {
+    flex: 42.5%;
 }
 
 .bottom.time-column {

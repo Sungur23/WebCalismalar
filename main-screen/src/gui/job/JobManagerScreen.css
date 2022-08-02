@@ -5,11 +5,6 @@
     background-color: transparent;
 }
 
-.job.segmented {
-    background-color: black;
-    color: white;
-}
-
 .ant-segmented {
     box-sizing: border-box;
     margin: 0;

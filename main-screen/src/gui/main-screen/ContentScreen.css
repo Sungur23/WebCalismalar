@@ -11,12 +11,86 @@
     border-right: black;
     border-right: 5px solid black;
     height: var(--heigt);
+    display: flex;
+    flex-direction: column;
+}
+
+.content.left-column-icon {
+    flex: 10%;
+    background-image: url("../../img/Akinci-2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.content.left-column-job {
+    flex: 5%;
+    text-align: left;
+    text-indent: 1vh;
+    border-right: black;
+    border-right: 5px solid black;
+    height: var(--heigt);
+}
+
+
+.content.left-column-skop {
+    flex: 5%;
+    /*flex: 40%;*/
+    /*background-image: url("../../img/3.png");*/
+    /*background-repeat: no-repeat;*/
+    /*background-size: cover;*/
+    /*background-position: bottom;*/
+}
+
+.content.left-bottom-map {
+    /*flex: 45%;*/
+    flex: 80%;
+}
+
+.googleMap {
+    height: 100%;
+    width: 100%;
 }
 
 .content.main-column {
     text-align: left;
     flex: 75%;
     height: var(--heigt);
+    display: flex;
+    flex-direction: column;
+}
+
+.content.main-column-ust {
+    flex: 55%;
+    display: flex;
+}
+
+.content.main-column-ust-sol {
+    flex: 65%;
+    background-image: url("../../img/4.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-color: #27464e;
+    display: flex;
+}
+
+.content.main-column-ust-sag {
+    flex: 35%;
+    background-image: url("../../img/3.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    background-color: #27464e;
+    display: flex;
+}
+
+.content.main-column-alt {
+    flex: 45%;
+    background-image: url("../../img/sar.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 .content.parent {

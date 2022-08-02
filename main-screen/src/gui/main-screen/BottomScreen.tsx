@@ -15,9 +15,10 @@ const BottomScreen: React.FC = () => {
 
     return (
         <div className="bottom parent">
-            <div className="bottom left-column">
-            </div>
+            <div className="bottom left-column"/>
             <div className="bottom content-column"></div>
+            <div className="bottom center-column"/>
+            <div className="bottom right-column"/>
             <div className="bottom time-column">
                 {time}<br/>{date}
             </div>

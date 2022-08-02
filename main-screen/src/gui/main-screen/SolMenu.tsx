@@ -26,16 +26,13 @@ const SolMenu = () => {
 
     return (
         <>
-            <br/>
-            <Switch
-                checked={theme === 'dark'}
-                onChange={changeTheme}
-                checkedChildren="Koyu"
-                // unCheckedChildren={<CheckOutlined/>}
-                unCheckedChildren="Açık"
-            />
-            <br/>
-            <br/>
+            {/*<Switch*/}
+            {/*    checked={theme === 'dark'}*/}
+            {/*    onChange={changeTheme}*/}
+            {/*    checkedChildren="Koyu"*/}
+            {/*    // unCheckedChildren={<CheckOutlined/>}*/}
+            {/*    unCheckedChildren="Açık"*/}
+            {/*/>*/}
             <Menu
                 theme={theme}
                 onClick={onClick}

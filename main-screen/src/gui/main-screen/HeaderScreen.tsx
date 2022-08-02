@@ -1,5 +1,6 @@
 import './HeaderScreen.css';
 import aselsan_logo from "../../img/aselsan_logo_1.png"
+import akinci from "../../img/Akinci-2.png"
 
 
 const HeaderScreen: React.FC = () => {
