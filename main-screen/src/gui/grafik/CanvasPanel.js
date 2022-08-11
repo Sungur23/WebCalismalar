@@ -1,23 +1,18 @@
 import React, {Component, useState, useEffect} from "react";
 import "./CanvasPanel.css"
-import hh_MTT from "../../img/hh_MTT.png"
+import hh_MTT from "../../img/hh_MTT_25.png"
 import {Alert} from "antd";
 
 const degsToRads = deg => (deg * Math.PI) / 180.0;
 
-
-function getCanvasWidthPosition(width) {
-    return width / 2;
-}
-
-function getCanvasHeightPosition(height) {
-    return height * 5 / 6;
-}
+var canvasWidthPosition;
+var canvasHeightPosition;
 
 function getPositionHipotenus(pos1, pos2) {
 
     return Math.sqrt(Math.pow((pos1[0] - pos2[0]), 2) + Math.pow((pos1[1] - pos2[1]), 2));
 }
+
 
 function getHalkaRenk(id) {
 
@@ -33,12 +28,38 @@ function getHalkaRenk(id) {
         return '#133C40';
 }
 
+function randomNumber(min, max) {
+    // 👇️ get number between min (inclusive) and max (inclusive)
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomBool() {
+    return Boolean(Math.round(Math.random()));
+}
+
+function getImgPos(img, coord) {
+    return [coord[0] + img.width / 2, coord[1] + img.height / 2];
+}
+
 var scale = 1;
 var orgnx = (0);
 var orgny = (0);
 var visibleWidth = 0;
 var visibleHeight = 0;
 var zoomIntensity = 0.05;
+var zoom = 1;
+var polarYaricap;
+const halkaSayisi = 4;
+let polarAngle = 50;
+
+var adimX = 0.01;
+var adimY = 0.05;
+const img = new Image();
+var diffControl = {id: -1, diff: 0}
+
+var mouseDragActive = false;
+let dragStart = {x: 0, y: 0}
+let mouseDragToolActive = true;
 
 function init() {
     scale = 1;
@@ -48,22 +69,12 @@ function init() {
     visibleHeight = 0;
 }
 
-let ppiScopePos = [
-    [100, 105],
-    [90, 125],
-    [80, 145],
-    [70, 165]
-];
-let ppiScopeYon = [
-    [false, false],
-    [false, true],
-    [false, false],
-    [false, true]
-];
+var targetSize = 20;
+let ppiScopePos = Array(targetSize).fill().map((u, y) =>
+    [randomNumber(-polarAngle, polarAngle), randomNumber(0, 200)]
+);
+let ppiScopeYon = Array(targetSize).fill(0).map(row => new Array(2).fill(randomBool()));
 
-var adimX = 0.02;
-var adimY = 0.01;
-const img = new Image();
 
 var cursor = {
     x: 200, y: 200,
@@ -80,6 +91,18 @@ const handleMouseMove = event => {
     cursor.x = event.clientX - event.target.offsetLeft;
     cursor.y = event.clientY - event.target.offsetTop;
 };
+
+function getTransCoord(arr) {
+    return [getAzmTrans(arr), getRangeTrans(arr)]
+}
+
+function getAzmTrans([yanca, menzil]) {
+    return canvasWidthPosition - (menzil * Math.sin(degsToRads(yanca)));
+}
+
+function getRangeTrans([yanca, menzil]) {
+    return canvasHeightPosition - (menzil * Math.cos(degsToRads(yanca)));
+}
 
 class CanvasPanel extends Component {
     constructor(props) {
@@ -121,41 +144,45 @@ class CanvasPanel extends Component {
                 || (cursor.clickY < 0 || cursor.clickY > canvas.height)) {
                 return;
             }
-
             var str = "";
             var selId = -1;
             const mouseScaled = getScaledPosition(canvas, [cursor.clickX, cursor.clickY]);
-
             for (let i = 0; i < ppiScopePos.length; i++) {
 
-                const number = parseInt(getPositionHipotenus(ppiScopePos[i], mouseScaled));
+                // const coord = getImgPos(img, getTransCoord(ppiScopePos[i]));
+                const coord = getTransCoord(ppiScopePos[i]);
+                const number = parseInt(getPositionHipotenus(coord, mouseScaled));
 
-                // str += i + " --> " + ([parseInt(ppiScopePos[i][0]), parseInt(ppiScopePos[i][1])] + "  scale:" + scale.toFixed(2) + " \n "
-                //     + mouseScaled[0].toFixed(2) + "," + mouseScaled[1].toFixed(2) + " * "
-                //     + [cursor.clickX.toFixed(2), cursor.clickY.toFixed(2)] + "  diff:" + number) + "\n";
-
-
-                str = i + " --> "
-                    + [parseInt(ppiScopePos[i][0]), parseInt(ppiScopePos[i][1])]
-                    + " - "
-                    + [cursor.clickX, cursor.clickY]
-                    + " :"
-                    + number;
+                str = i + " --> " + [parseInt(coord[0]), parseInt(coord[1])]
+                    + " - " + [cursor.clickX, cursor.clickY] + " :" + number;
                 const carpan = scale == 1 ? 0 : (scale / 20);
-                // console.log(12 - 12 * carpan);
                 if (number < 12 - 12 * carpan) {
-                    selId = i;
+
+                    // ilk bulgu
+                    if (diffControl.id == -1) {
+                        selId = i;
+                        diffControl.id = i;
+                        diffControl.diff = number;
+                    }
+                    // daha yakin hedef varsa guncelle
+                    else if (number < diffControl.diff) {
+                        diffControl.id = i;
+                        diffControl.diff = number;
+                    }
                     // alert(str);
-                    break;
+                    // break;
                 }
             }
             // alert(str);
-
             selectedId.id = selId;
+            diffControl.id = -1;
+            diffControl.diff = 0;
         }
 
         return function (event) {
 
+            if (mouseDragActive)
+                return;
             const canvas = canvasRef.current;
             var rect = canvas.getBoundingClientRect();
             cursor.clickX = ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
@@ -173,7 +200,7 @@ class CanvasPanel extends Component {
             var scroll = event.deltaY < 0 ? 1 : -1;
 
             var coor = "X coords: " + cursor.clickX + ", Y coords: " + cursor.clickY;
-            console.log("mouse: " + coor);
+            // console.log("mouse: " + coor);
             control(canvas);
         };
     }
@@ -182,25 +209,61 @@ class CanvasPanel extends Component {
 
         return function (event) {
 
+            if (mouseDragActive) {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+
+                var rect = canvas.getBoundingClientRect();
+                const dragX = ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
+                const dragY = ((event.clientY - rect.top) / (rect.bottom - rect.top)) * canvas.height
+
+                if ((dragX < 0 || dragX > canvas.width)
+                    || (dragY < 0 || dragY > canvas.height)) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (scale != 1) {
+
+                    const xTemp = (dragX - dragStart.x) / scale;
+                    const yTemp = (dragY - dragStart.y) / scale;
+                    ctx.translate(xTemp, yTemp);
+                    dragStart.x = dragX;
+                    dragStart.y = dragY;
+                }
+            }
+        };
+    }
+
+    handleMouseDragStop(canvasRef) {
+        return function (event) {
             const canvas = canvasRef.current;
+            canvas.style.cursor = "default";
+            dragStart = {x: 0, y: 0};
+            mouseDragActive = false;
+        };
+    }
 
+    handleMouseDragStart(canvasRef) {
+        return function (event) {
+
+            if (!mouseDragToolActive) return;
+
+            const canvas = canvasRef.current;
             var rect = canvas.getBoundingClientRect();
-            cursor.clickX = ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
-            cursor.clickY = ((event.clientY - rect.top) / (rect.bottom - rect.top)) * canvas.height
+            const dragX = ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
+            const dragY = ((event.clientY - rect.top) / (rect.bottom - rect.top)) * canvas.height
 
-            if ((cursor.clickX < 0 || cursor.clickX > canvas.width)
-                || (cursor.clickY < 0 || cursor.clickY > canvas.height)) {
+            if (scale == 1 || (dragX < 0 || dragX > canvas.width)
+                || (dragY < 0 || dragY > canvas.height)) {
                 return;
             }
 
-            const width = canvas.width;
-            const height = canvas.height;
-
-            event.preventDefault();
-            var scroll = event.deltaY < 0 ? 1 : -1;
-
-            var coor = "X coords: " + cursor.clickX + ", Y coords: " + cursor.clickY;
-            console.log("mouse move: " + coor);
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+            dragStart = {x: dragX, y: dragY};
+            mouseDragActive = true;
+            canvas.style.cursor = "pointer";
         };
     }
 
@@ -212,7 +275,7 @@ class CanvasPanel extends Component {
             const height = canvas.height;
 
             var scroll = event.deltaY < 0 ? 1 : -1;
-            var zoom = Math.exp(scroll * zoomIntensity);
+            zoom = Math.exp(scroll * zoomIntensity);
 
             if ((scale * zoom) > 4 || (scale * zoom) < 1) return;
 
@@ -229,6 +292,7 @@ class CanvasPanel extends Component {
             scale *= zoom;
             visibleWidth = width / scale;
             visibleHeight = height / scale;
+            ctx.clearRect(0, 0, width, height);
         };
     }
 
@@ -239,81 +303,91 @@ class CanvasPanel extends Component {
             if (ctx != null) {
                 ctx.clearRect(0, 0, width, height);
                 // alert(width + " - " + height);
-                let ang = 50;
-                const wCenter = getCanvasWidthPosition(width);
-                const hCenter = getCanvasHeightPosition(height);
-                const r = height / 6;
 
                 ctx.strokeStyle = 'gray';
                 ctx.globalAlpha = 0.7;
 
                 //draw full circles
-                // ctx.moveTo(wCenter, hCenter);
+                // ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
                 // for (let i = 0; i < 7; i++) {
                 //     ctx.beginPath();
-                //     ctx.arc(wCenter, hCenter, 10 + 10 * i, 0, Math.PI * 2, true);
+                //     ctx.arc(canvasWidthPosition, canvasHeightPosition, 10 + 10 * i, 0, Math.PI, true);
                 //     ctx.fill();
                 // }
 
-                for (let i = 0; i < 4; i++) {
+                for (let i = 0; i < halkaSayisi; i++) {
 
                     ctx.beginPath();
-                    ctx.moveTo(wCenter, hCenter);
-                    ctx.arc(wCenter, hCenter, r * (4 - i), degsToRads(-ang - 90), degsToRads(ang - 90), false);
+                    ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
+                    ctx.arc(canvasWidthPosition, canvasHeightPosition,
+                        ((halkaSayisi - i) * polarYaricap / halkaSayisi),
+                        degsToRads(-polarAngle - 90), degsToRads(polarAngle - 90), false);
+                    ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
+
+                    // const arr1 = [50, polarYaricap];
+                    // const coord1 = getTransCoord(arr1);
+                    // ctx.lineTo(coord1[0], coord1[1]);
+
                     ctx.fillStyle = getHalkaRenk(i);
                     ctx.fill();
+                    ctx.closePath();
 
-                    if (i == 5) {
-                        ctx.closePath();
-                        ctx.stroke();
+                    if (i == 0) {
+                        // ctx.closePath();
+                        // ctx.stroke();
                     }
                 }
+
 
                 // const time = new Date();
                 // ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
                 // ctx.translate(105, 0);
                 // ctx.fillRect(0, -12, 40, 24); // Shadow
-                moveX();
-                moveY();
-                const imgWidth = img.width / 3;
-                const imgHeight = img.height / 3;
+                moveTargets();
 
-                ctx.drawImage(img, ppiScopePos[0][0], ppiScopePos[0][1], imgWidth, imgHeight);
-                ctx.drawImage(img, ppiScopePos[1][0], ppiScopePos[1][1], imgWidth, imgHeight);
-                ctx.drawImage(img, ppiScopePos[2][0], ppiScopePos[2][1], imgWidth, imgHeight);
-                ctx.drawImage(img, ppiScopePos[3][0], ppiScopePos[3][1], imgWidth, imgHeight);
+                for (let i = 0; i < ppiScopePos.length; i++) {
+                    const coord = getTransCoord(ppiScopePos[i]);
+                    ctx.drawImage(img, coord[0] - img.width / 2, coord[1] - img.height / 2);
+                }
 
                 if (selectedId.id != -1) {
-                    ctx.strokeRect(ppiScopePos[selectedId.id][0], ppiScopePos[selectedId.id][1], imgWidth, imgHeight);
+                    const coord = getTransCoord(ppiScopePos[selectedId.id]);
+
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 2
+                    ctx.strokeRect(coord[0] - img.width / 2 - 4, coord[1] - img.height / 2 - 4, img.width + 8, img.height + 8);
                 }
             }
         }
 
-        function moveX() {
+
+        function moveTargets() {
 
             for (let id = 0; id < ppiScopePos.length; id++) {
+
                 ppiScopeYon[id][0] ? ppiScopePos[id][0] += -adimX : ppiScopePos[id][0] += adimX;
-                if (ppiScopePos[id][0] > 300) {
+                ppiScopeYon[id][1] ? ppiScopePos[id][1] += -adimY : ppiScopePos[id][1] += adimY;
+
+                if (ppiScopePos[id][0] > polarAngle) {
+                    ppiScopePos[id][0] = polarAngle;
                     ppiScopeYon[id][0] = true;
                 }
-                if (ppiScopePos[id][0] < 70 + (id * 10)) {
+                if (ppiScopePos[id][0] < -polarAngle) {
+                    ppiScopePos[id][0] = -polarAngle;
                     ppiScopeYon[id][0] = false;
                 }
-            }
-        }
 
-        function moveY() {
-
-            for (let id = 0; id < ppiScopePos.length; id++) {
-                ppiScopeYon[id][1] ? ppiScopePos[id][1] += -adimY : ppiScopePos[id][1] += adimY;
-                if (ppiScopePos[id][1] > 210) {
+                if (ppiScopePos[id][1] >= polarYaricap) {
+                    ppiScopePos[id][1] = polarYaricap;
                     ppiScopeYon[id][1] = true;
                 }
-                if (ppiScopePos[id][1] < 90) {
+                if (ppiScopePos[id][1] < 0) {
+                    ppiScopePos[id][1] = 0;
                     ppiScopeYon[id][1] = false;
                 }
             }
         }
+
     }
 
     onClick = (canvasRef) => {
@@ -338,11 +412,17 @@ class CanvasPanel extends Component {
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
+            canvasWidthPosition = width / 2;
+            canvasHeightPosition = height * 5 / 6;
+
+            polarYaricap = halkaSayisi * (height / 6);
             setInterval(this.canvasDraw(ctx, width, height), 1);
             // Scroll effect function
             canvas.onwheel = this.zoomControl(canvas);
             window.addEventListener('click', this.handleMouseClick(this.canvasRef));
-            window.addEventListener('dragleave', this.handleMouseMove(this.canvasRef));
+            window.addEventListener('mousemove', this.handleMouseMove(this.canvasRef));
+            window.addEventListener('mouseup', this.handleMouseDragStop(this.canvasRef));
+            window.addEventListener('mousedown', this.handleMouseDragStart(this.canvasRef));
         }
     }
 
@@ -350,8 +430,8 @@ class CanvasPanel extends Component {
 
         return <div style={{height: "100%", backgroundColor: "#27464e", display: "flex", flexDirection: "column"}}>
             <button className="yenile" onClick={() => this.onClick(this.canvasRef)}></button>
-            <canvas width="450" height="400" ref={this.canvasRef}
-                    style={{backgroundColor: "#27464e", flex: "97%", maxWidth: "450", maxHeight: "400"}}/>
+            <canvas width="600" height="600" ref={this.canvasRef}
+                    style={{backgroundColor: "#27464e", flex: "97%", maxWidth: "600", maxHeight: "600"}}/>
             {/*<canvas ref={this.canvasRef}  style={{backgroundColor: "#27464e"}}/>*/}
         </div>;
     }
