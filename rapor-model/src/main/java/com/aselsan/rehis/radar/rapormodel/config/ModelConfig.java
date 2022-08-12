@@ -26,8 +26,8 @@ public class ModelConfig {
                 TrackModel student = new TrackModel(
                         (long) i,
                         "AS",
-                        30,
-                        200,
+                        30 + i,
+                        200 - i,
                         30);
                 tracks.add(student);
             }
