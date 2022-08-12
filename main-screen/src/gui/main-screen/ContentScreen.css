@@ -16,7 +16,7 @@
 }
 
 .content.left-column-icon {
-    flex: 10%;
+    flex: 20%;
     background-image: url("../../img/Akinci-2.png");
     background-repeat: no-repeat;
     background-size: cover;
@@ -24,7 +24,7 @@
 }
 
 .content.left-column-job {
-    flex: 5%;
+    flex: 15%;
     text-align: left;
     text-indent: 1vh;
     border-right: black;
@@ -32,19 +32,9 @@
     height: var(--heigt);
 }
 
-
 .content.left-column-skop {
-    flex: 5%;
-    /*flex: 40%;*/
-    /*background-image: url("../../img/3.png");*/
-    /*background-repeat: no-repeat;*/
-    /*background-size: cover;*/
-    /*background-position: bottom;*/
-}
-
-.content.left-bottom-map {
     /*flex: 45%;*/
-    flex: 80%;
+    flex: 60%;
 }
 
 .googleMap {

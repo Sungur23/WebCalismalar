@@ -48,12 +48,15 @@ var visibleWidth = 0;
 var visibleHeight = 0;
 var zoomIntensity = 0.05;
 var zoom = 1;
+const MAX_ZOOM_LIMIT = 16;
+const MIN_ZOOM_LIMIT = 1;
+
 var polarYaricap;
 const halkaSayisi = 4;
 let polarAngle = 50;
 
-var adimX = 0.01;
-var adimY = 0.05;
+var adimX = 0.1;
+var adimY = 0.5;
 const img = new Image();
 var diffControl = {id: -1, diff: 0}
 
@@ -63,13 +66,14 @@ let mouseDragToolActive = true;
 
 function init() {
     scale = 1;
+    zoom = 1;
     orgnx = (0);
     orgny = (0);
     visibleWidth = 0;
     visibleHeight = 0;
 }
 
-var targetSize = 20;
+var targetSize = 200;
 let ppiScopePos = Array(targetSize).fill().map((u, y) =>
     [randomNumber(-polarAngle, polarAngle), randomNumber(0, 200)]
 );
@@ -103,6 +107,20 @@ function getAzmTrans([yanca, menzil]) {
 function getRangeTrans([yanca, menzil]) {
     return canvasHeightPosition - (menzil * Math.cos(degsToRads(yanca)));
 }
+
+function clearCanvas(canvas) {
+    var ctx = canvas.getContext('2d');     // gets reference to canvas context
+    ctx.beginPath();    // clear existing drawing paths
+    ctx.save();         // store the current transformation matrix
+
+    // Use the identity matrix while clearing the canvas
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.restore();        // restore the transform
+}
+
+const SELECTION_DIFF_CONSTANT = 4;
 
 class CanvasPanel extends Component {
     constructor(props) {
@@ -181,8 +199,6 @@ class CanvasPanel extends Component {
 
         return function (event) {
 
-            if (mouseDragActive)
-                return;
             const canvas = canvasRef.current;
             var rect = canvas.getBoundingClientRect();
             cursor.clickX = ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
@@ -232,13 +248,17 @@ class CanvasPanel extends Component {
                     dragStart.x = dragX;
                     dragStart.y = dragY;
                 }
+                ctx.save();
             }
         };
     }
 
+
     handleMouseDragStop(canvasRef) {
         return function (event) {
+            // event.stopPropagation();
             const canvas = canvasRef.current;
+            clearCanvas(canvas);
             canvas.style.cursor = "default";
             dragStart = {x: 0, y: 0};
             mouseDragActive = false;
@@ -260,7 +280,6 @@ class CanvasPanel extends Component {
                 return;
             }
 
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
             dragStart = {x: dragX, y: dragY};
             mouseDragActive = true;
             canvas.style.cursor = "pointer";
@@ -277,9 +296,9 @@ class CanvasPanel extends Component {
             var scroll = event.deltaY < 0 ? 1 : -1;
             zoom = Math.exp(scroll * zoomIntensity);
 
-            if ((scale * zoom) > 4 || (scale * zoom) < 1) return;
+            if ((scale * zoom) > MAX_ZOOM_LIMIT || (scale * zoom) < MIN_ZOOM_LIMIT) return;
 
-            ctx.clearRect(0, 0, width, height);
+            // clearCanvas(canvas);
             ctx.translate(orgnx, orgny);
 
             orgnx -= cursor.x / (scale * zoom) - cursor.x / scale;
@@ -287,77 +306,96 @@ class CanvasPanel extends Component {
 
             ctx.scale(zoom, zoom);
             ctx.translate(-orgnx, -orgny);
-
+            ctx.save();
             // Updating scale and visisble width and height
             scale *= zoom;
             visibleWidth = width / scale;
             visibleHeight = height / scale;
-            ctx.clearRect(0, 0, width, height);
         };
+    }
+
+    drawPPIgrafik(ctx) {
+
     }
 
     canvasDraw(ctx, width, height) {
 
         return function draw() {
 
-            if (ctx != null) {
-                ctx.clearRect(0, 0, width, height);
-                // alert(width + " - " + height);
+            // clearCanvas(ctx.canvas);
+            ctx.clearRect(0, 0, width, height);
+            // alert(width + " - " + height);
 
-                ctx.strokeStyle = 'gray';
-                ctx.globalAlpha = 0.7;
+            ctx.strokeStyle = 'gray';
+            ctx.globalAlpha = 0.7;
 
-                //draw full circles
-                // ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
-                // for (let i = 0; i < 7; i++) {
-                //     ctx.beginPath();
-                //     ctx.arc(canvasWidthPosition, canvasHeightPosition, 10 + 10 * i, 0, Math.PI, true);
-                //     ctx.fill();
-                // }
+            //draw full circles
+            // ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
+            // for (let i = 0; i < 7; i++) {
+            //     ctx.beginPath();
+            //     ctx.arc(canvasWidthPosition, canvasHeightPosition, 10 + 10 * i, 0, Math.PI, true);
+            //     ctx.fill();
+            // }
 
-                for (let i = 0; i < halkaSayisi; i++) {
+            for (let i = 0; i < halkaSayisi; i++) {
 
-                    ctx.beginPath();
-                    ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
-                    ctx.arc(canvasWidthPosition, canvasHeightPosition,
-                        ((halkaSayisi - i) * polarYaricap / halkaSayisi),
-                        degsToRads(-polarAngle - 90), degsToRads(polarAngle - 90), false);
-                    ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
+                ctx.beginPath();
+                ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
+                ctx.arc(canvasWidthPosition, canvasHeightPosition,
+                    ((halkaSayisi - i) * polarYaricap / halkaSayisi),
+                    degsToRads(-polarAngle - 90), degsToRads(polarAngle - 90), false);
+                ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
 
-                    // const arr1 = [50, polarYaricap];
-                    // const coord1 = getTransCoord(arr1);
-                    // ctx.lineTo(coord1[0], coord1[1]);
+                // const arr1 = [50, polarYaricap];
+                // const coord1 = getTransCoord(arr1);
+                // ctx.lineTo(coord1[0], coord1[1]);
 
-                    ctx.fillStyle = getHalkaRenk(i);
-                    ctx.fill();
-                    ctx.closePath();
+                ctx.fillStyle = getHalkaRenk(i);
+                ctx.fill();
+                ctx.closePath();
 
-                    if (i == 0) {
-                        // ctx.closePath();
-                        // ctx.stroke();
-                    }
-                }
-
-
-                // const time = new Date();
-                // ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
-                // ctx.translate(105, 0);
-                // ctx.fillRect(0, -12, 40, 24); // Shadow
-                moveTargets();
-
-                for (let i = 0; i < ppiScopePos.length; i++) {
-                    const coord = getTransCoord(ppiScopePos[i]);
-                    ctx.drawImage(img, coord[0] - img.width / 2, coord[1] - img.height / 2);
-                }
-
-                if (selectedId.id != -1) {
-                    const coord = getTransCoord(ppiScopePos[selectedId.id]);
-
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 2
-                    ctx.strokeRect(coord[0] - img.width / 2 - 4, coord[1] - img.height / 2 - 4, img.width + 8, img.height + 8);
+                if (i == 0) {
+                    // ctx.closePath();
+                    // ctx.stroke();
                 }
             }
+
+
+            // const time = new Date();
+            // ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
+            // ctx.translate(105, 0);
+            // ctx.fillRect(0, -12, 40, 24); // Shadow
+            moveTargets();
+
+            for (let i = 0; i < ppiScopePos.length; i++) {
+                const coord = getTransCoord(ppiScopePos[i]);
+                ctx.drawImage(img, coord[0] - img.width / 2, coord[1] - img.height / 2, img.width / scale, img.height / scale);
+            }
+
+            if (selectedId.id != -1) {
+                const coord = getTransCoord(ppiScopePos[selectedId.id]);
+
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2 / scale;
+
+                const w = img.width;
+                const h = img.height;
+                const tx = coord[0] - getSelectionWidthLimit(img);
+                const ty = coord[1] - getSelectionHeightLimit(img);
+
+                ctx.strokeRect(tx, ty, (w + SELECTION_DIFF_CONSTANT * 2) / scale, (h + SELECTION_DIFF_CONSTANT * 2) / scale);
+            }
+            ctx.save();
+        }
+
+        function getSelectionWidthLimit(img) {
+
+            return (img.width / 2) + SELECTION_DIFF_CONSTANT / scale;
+        }
+
+        function getSelectionHeightLimit(img) {
+
+            return (img.height / 2) + SELECTION_DIFF_CONSTANT / scale;
         }
 
 
@@ -412,14 +450,18 @@ class CanvasPanel extends Component {
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
-            canvasWidthPosition = width / 2;
-            canvasHeightPosition = height * 5 / 6;
-
             polarYaricap = halkaSayisi * (height / 6);
-            setInterval(this.canvasDraw(ctx, width, height), 1);
+            if (polarYaricap > height)
+                polarYaricap = height;
+
+            canvasWidthPosition = width / 2;
+            canvasHeightPosition = height - 10;//height * 5 / 6;
+
+            // polarYaricap = halkaSayisi * (height / 6);
+            setInterval(this.canvasDraw(ctx, width, height), 1000 / 30);
             // Scroll effect function
             canvas.onwheel = this.zoomControl(canvas);
-            window.addEventListener('click', this.handleMouseClick(this.canvasRef));
+            canvas.addEventListener('click', this.handleMouseClick(this.canvasRef));
             window.addEventListener('mousemove', this.handleMouseMove(this.canvasRef));
             window.addEventListener('mouseup', this.handleMouseDragStop(this.canvasRef));
             window.addEventListener('mousedown', this.handleMouseDragStart(this.canvasRef));
@@ -430,8 +472,8 @@ class CanvasPanel extends Component {
 
         return <div style={{height: "100%", backgroundColor: "#27464e", display: "flex", flexDirection: "column"}}>
             <button className="yenile" onClick={() => this.onClick(this.canvasRef)}></button>
-            <canvas width="600" height="600" ref={this.canvasRef}
-                    style={{backgroundColor: "#27464e", flex: "97%", maxWidth: "600", maxHeight: "600"}}/>
+            <canvas width="500" height="500" ref={this.canvasRef}
+                    style={{backgroundColor: "#27464e", flex: "97%"}}/>
             {/*<canvas ref={this.canvasRef}  style={{backgroundColor: "#27464e"}}/>*/}
         </div>;
     }
