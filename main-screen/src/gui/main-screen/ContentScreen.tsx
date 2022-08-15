@@ -21,8 +21,8 @@ const ContentScreen: React.FC = () => {
                     <JobManagerScreen/>
                 </div>
                 <div className="content left-column-skop">
-                    {/*<MyMap className="googleMap"/>*/}
-                    <CanvasPanel/>
+                    <MyMap className="googleMap"/>
+                    {/*<CanvasPanel/>*/}
                 </div>
             </div>
             <div className="content main-column">
@@ -36,8 +36,8 @@ const ContentScreen: React.FC = () => {
                 </div>
 
                 <div className="content main-column-right">
-                    {/*<CanvasPanel/>*/}
-                    <MyMap className="googleMap"/>
+                    <CanvasPanel/>
+                    {/*<MyMap className="googleMap"/>*/}
                 </div>
             </div>
         </div>

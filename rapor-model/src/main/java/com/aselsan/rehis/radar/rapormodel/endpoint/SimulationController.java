@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "api/v1/simulation")
 public class SimulationController {
 
@@ -18,7 +19,8 @@ public class SimulationController {
     public SimulationController(SimulationService simulationService) {
         this.simulationService = simulationService;
     }
-    
+
+
     @GetMapping(path = "tracks")
     public List<TrackModel> getTracks() {
         return simulationService.getTracks();

@@ -2,6 +2,7 @@ import React, {Component, useState, useEffect} from "react";
 import "./CanvasPanel.css"
 import hh_MTT from "../../img/hh_MTT_25.png"
 import {Alert} from "antd";
+import {TrackModel} from "../../api/SimulationAPI";
 
 const degsToRads = deg => (deg * Math.PI) / 180.0;
 
@@ -74,11 +75,22 @@ function init() {
 }
 
 var targetSize = 200;
-let ppiScopePos = Array(targetSize).fill().map((u, y) =>
-    [randomNumber(-polarAngle, polarAngle), randomNumber(0, 200)]
-);
-let ppiScopeYon = Array(targetSize).fill(0).map(row => new Array(2).fill(randomBool()));
+// let ppiScopePos = Array(targetSize).fill().map((u, y) =>
+//     [randomNumber(-polarAngle, polarAngle), randomNumber(0, 200)]
+// );
+// let ppiScopeYon = Array(targetSize).fill(0).map(row => new Array(2).fill(randomBool()));
 
+let ppiScopeObjects = [];
+
+export function setTracks(trackList) {
+
+    if (ppiScopeObjects.length == 0)
+        ppiScopeObjects = Array(trackList.length).fill().map((u, y) => [0, 0]);
+    for (let i = 0; i < ppiScopeObjects.length; i++) {
+        ppiScopeObjects[i][0] = trackList[i].azimuth;
+        ppiScopeObjects[i][1] = trackList[i].range;
+    }
+}
 
 var cursor = {
     x: 200, y: 200,
@@ -165,10 +177,10 @@ class CanvasPanel extends Component {
             var str = "";
             var selId = -1;
             const mouseScaled = getScaledPosition(canvas, [cursor.clickX, cursor.clickY]);
-            for (let i = 0; i < ppiScopePos.length; i++) {
+            for (let i = 0; i < ppiScopeObjects.length; i++) {
 
                 // const coord = getImgPos(img, getTransCoord(ppiScopePos[i]));
-                const coord = getTransCoord(ppiScopePos[i]);
+                const coord = getTransCoord(ppiScopeObjects[i]);
                 const number = parseInt(getPositionHipotenus(coord, mouseScaled));
 
                 str = i + " --> " + [parseInt(coord[0]), parseInt(coord[1])]
@@ -258,7 +270,7 @@ class CanvasPanel extends Component {
         return function (event) {
             // event.stopPropagation();
             const canvas = canvasRef.current;
-            clearCanvas(canvas);
+            // clearCanvas(canvas);
             canvas.style.cursor = "default";
             dragStart = {x: 0, y: 0};
             mouseDragActive = false;
@@ -322,8 +334,8 @@ class CanvasPanel extends Component {
 
         return function draw() {
 
-            // clearCanvas(ctx.canvas);
-            ctx.clearRect(0, 0, width, height);
+            clearCanvas(ctx.canvas);
+            // ctx.clearRect(0, 0, width, height);
             // alert(width + " - " + height);
 
             ctx.strokeStyle = 'gray';
@@ -365,15 +377,17 @@ class CanvasPanel extends Component {
             // ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
             // ctx.translate(105, 0);
             // ctx.fillRect(0, -12, 40, 24); // Shadow
-            moveTargets();
 
-            for (let i = 0; i < ppiScopePos.length; i++) {
-                const coord = getTransCoord(ppiScopePos[i]);
+
+            // moveTargets();
+
+            for (let i = 0; i < ppiScopeObjects.length; i++) {
+                const coord = getTransCoord(ppiScopeObjects[i]);
                 ctx.drawImage(img, coord[0] - img.width / 2, coord[1] - img.height / 2, img.width / scale, img.height / scale);
             }
 
             if (selectedId.id != -1) {
-                const coord = getTransCoord(ppiScopePos[selectedId.id]);
+                const coord = getTransCoord(ppiScopeObjects[selectedId.id]);
 
                 ctx.strokeStyle = 'red';
                 ctx.lineWidth = 2 / scale;
@@ -401,29 +415,29 @@ class CanvasPanel extends Component {
 
         function moveTargets() {
 
-            for (let id = 0; id < ppiScopePos.length; id++) {
-
-                ppiScopeYon[id][0] ? ppiScopePos[id][0] += -adimX : ppiScopePos[id][0] += adimX;
-                ppiScopeYon[id][1] ? ppiScopePos[id][1] += -adimY : ppiScopePos[id][1] += adimY;
-
-                if (ppiScopePos[id][0] > polarAngle) {
-                    ppiScopePos[id][0] = polarAngle;
-                    ppiScopeYon[id][0] = true;
-                }
-                if (ppiScopePos[id][0] < -polarAngle) {
-                    ppiScopePos[id][0] = -polarAngle;
-                    ppiScopeYon[id][0] = false;
-                }
-
-                if (ppiScopePos[id][1] >= polarYaricap) {
-                    ppiScopePos[id][1] = polarYaricap;
-                    ppiScopeYon[id][1] = true;
-                }
-                if (ppiScopePos[id][1] < 0) {
-                    ppiScopePos[id][1] = 0;
-                    ppiScopeYon[id][1] = false;
-                }
-            }
+            // for (let id = 0; id < ppiScopePos.length; id++) {
+            //
+            //     ppiScopeYon[id][0] ? ppiScopePos[id][0] += -adimX : ppiScopePos[id][0] += adimX;
+            //     ppiScopeYon[id][1] ? ppiScopePos[id][1] += -adimY : ppiScopePos[id][1] += adimY;
+            //
+            //     if (ppiScopePos[id][0] > polarAngle) {
+            //         ppiScopePos[id][0] = polarAngle;
+            //         ppiScopeYon[id][0] = true;
+            //     }
+            //     if (ppiScopePos[id][0] < -polarAngle) {
+            //         ppiScopePos[id][0] = -polarAngle;
+            //         ppiScopeYon[id][0] = false;
+            //     }
+            //
+            //     if (ppiScopePos[id][1] >= polarYaricap) {
+            //         ppiScopePos[id][1] = polarYaricap;
+            //         ppiScopeYon[id][1] = true;
+            //     }
+            //     if (ppiScopePos[id][1] < 0) {
+            //         ppiScopePos[id][1] = 0;
+            //         ppiScopeYon[id][1] = false;
+            //     }
+            // }
         }
 
     }
@@ -472,7 +486,7 @@ class CanvasPanel extends Component {
 
         return <div style={{height: "100%", backgroundColor: "#27464e", display: "flex", flexDirection: "column"}}>
             <button className="yenile" onClick={() => this.onClick(this.canvasRef)}></button>
-            <canvas width="500" height="500" ref={this.canvasRef}
+            <canvas width="600" height="600" ref={this.canvasRef}
                     style={{backgroundColor: "#27464e", flex: "97%"}}/>
             {/*<canvas ref={this.canvasRef}  style={{backgroundColor: "#27464e"}}/>*/}
         </div>;

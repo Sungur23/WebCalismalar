@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Configuration
 @ConfigurationProperties(prefix = "rapor-model.simulation")
@@ -21,13 +22,14 @@ public class ModelConfig {
     @Bean
     CommandLineRunner commandLineRunner(TrackRepository repository) {
         List<TrackModel> tracks = new ArrayList<>();
+        Random r = new Random();
         return args -> {
             for (int i = 1; i <= getSimulationTrackSize(); i++) {
                 TrackModel student = new TrackModel(
                         (long) i,
                         "AS",
-                        30 + i,
-                        200 - i,
+                        -50 + (50 - (-50)) * r.nextDouble(),
+                        0 + (200 - (0)) * r.nextDouble(),
                         30);
                 tracks.add(student);
             }
