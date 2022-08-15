@@ -47,7 +47,7 @@ public class SimulationService {
                 track.setAzimuth(azimuth + 0.04);
 
                 double range = track.getRange();
-                if (range >= 300) {
+                if (range >= 600) {
                     range = 0;
                 }
                 track.setRange(range + 0.3);

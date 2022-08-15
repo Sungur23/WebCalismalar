@@ -460,7 +460,7 @@ class CanvasPanel extends Component {
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
-            polarYaricap = halkaSayisi * (height / 6);
+            polarYaricap = halkaSayisi * (height / 5);
             if (polarYaricap > height)
                 polarYaricap = height;
 
@@ -468,7 +468,7 @@ class CanvasPanel extends Component {
             canvasHeightPosition = height - 10;//height * 5 / 6;
 
             // polarYaricap = halkaSayisi * (height / 6);
-            setInterval(this.canvasDraw(ctx, width, height), 1000 / 30);
+            setInterval(this.canvasDraw(ctx, width, height), 1000 / 60);
             // Scroll effect function
             canvas.onwheel = this.zoomControl(canvas);
             canvas.addEventListener('click', this.handleMouseClick(this.canvasRef));
@@ -479,11 +479,12 @@ class CanvasPanel extends Component {
     }
 
     render() {
-
+        const w = window.innerWidth * 0.65;
+        const h = window.innerHeight * 0.87;
         return <div style={{height: "100%", backgroundColor: "#27464e", display: "flex", flexDirection: "column"}}>
             <button className="yenile" onClick={() => this.onClick(this.canvasRef)}></button>
-            <canvas width="600" height="600" ref={this.canvasRef}
-                    style={{backgroundColor: "#27464e", flex: "97%"}}/>
+            <canvas width={w} height={h} ref={this.canvasRef}
+                    style={{backgroundColor: "#27464e"}}/>
             {/*<canvas ref={this.canvasRef}  style={{backgroundColor: "#27464e"}}/>*/}
         </div>;
     }

@@ -25,20 +25,9 @@ const ContentScreen: React.FC = () => {
                     {/*<CanvasPanel/>*/}
                 </div>
             </div>
-            <div className="content main-column">
-                <div className="content main-column-left">
-                    <div className="content main-column-left-ust">
-                        <div className="content main-column-left-ust-sol"/>
-                        {/*<CanvasPanel className="content main-column-left-ust-sag"/>*/}
-                        {/*<div className="content main-column-ust-sag"/>*/}
-                    </div>
-                    <div className="content main-column-left-alt"/>
-                </div>
-
-                <div className="content main-column-right">
-                    <CanvasPanel/>
-                    {/*<MyMap className="googleMap"/>*/}
-                </div>
+            <div className="content main-column-a">
+                <CanvasPanel className="content main-column"/>
+                {/*<MyMap className="googleMap"/>*/}
             </div>
         </div>
     );
