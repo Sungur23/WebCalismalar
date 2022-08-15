@@ -120,16 +120,23 @@ function getRangeTrans([yanca, menzil]) {
     return canvasHeightPosition - (menzil * Math.cos(degsToRads(yanca)));
 }
 
+// function clearCanvas(canvas) {
+//     var ctx = canvas.getContext('2d');     // gets reference to canvas context
+//     ctx.beginPath();    // clear existing drawing paths
+//     ctx.save();         // store the current transformation matrix
+//
+//     // Use the identity matrix while clearing the canvas
+//     ctx.setTransform(1, 0, 0, 1, 0, 0);
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+//
+//     ctx.restore();        // restore the transform
+// }
+
 function clearCanvas(canvas) {
     var ctx = canvas.getContext('2d');     // gets reference to canvas context
-    ctx.beginPath();    // clear existing drawing paths
-    ctx.save();         // store the current transformation matrix
 
-    // Use the identity matrix while clearing the canvas
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.restore();        // restore the transform
+    const transform = ctx.getTransform();
+    ctx.clearRect(-transform.e / transform.a, -transform.f / transform.d, canvas.width, canvas.height);
 }
 
 const SELECTION_DIFF_CONSTANT = 4;
@@ -334,21 +341,19 @@ class CanvasPanel extends Component {
 
         return function draw() {
 
+            // const transform = ctx.getTransform();
+            // console.log(transform.a.toFixed(2) + " | " +
+            //     transform.b.toFixed(2) + " | " +
+            //     transform.c.toFixed(2) + " | " +
+            //     transform.d.toFixed(2) + " | " +
+            //     transform.e.toFixed(2) + " | " +
+            //     transform.f.toFixed(2));
             clearCanvas(ctx.canvas);
-            // ctx.clearRect(0, 0, width, height);
+            // ctx.clearRect(-transform.e / transform.a, -transform.f / transform.d, width, height);
             // alert(width + " - " + height);
 
             ctx.strokeStyle = 'gray';
-            ctx.globalAlpha = 0.7;
-
-            //draw full circles
-            // ctx.moveTo(canvasWidthPosition, canvasHeightPosition);
-            // for (let i = 0; i < 7; i++) {
-            //     ctx.beginPath();
-            //     ctx.arc(canvasWidthPosition, canvasHeightPosition, 10 + 10 * i, 0, Math.PI, true);
-            //     ctx.fill();
-            // }
-
+            // ctx.globalAlpha = 0.7;
             for (let i = 0; i < halkaSayisi; i++) {
 
                 ctx.beginPath();
@@ -372,15 +377,6 @@ class CanvasPanel extends Component {
                 }
             }
 
-
-            // const time = new Date();
-            // ctx.rotate(((2 * Math.PI) / 60) * time.getSeconds() + ((2 * Math.PI) / 60000) * time.getMilliseconds());
-            // ctx.translate(105, 0);
-            // ctx.fillRect(0, -12, 40, 24); // Shadow
-
-
-            // moveTargets();
-
             for (let i = 0; i < ppiScopeObjects.length; i++) {
                 const coord = getTransCoord(ppiScopeObjects[i]);
                 ctx.drawImage(img, coord[0] - img.width / 2, coord[1] - img.height / 2, img.width / scale, img.height / scale);
@@ -399,7 +395,7 @@ class CanvasPanel extends Component {
 
                 ctx.strokeRect(tx, ty, (w + SELECTION_DIFF_CONSTANT * 2) / scale, (h + SELECTION_DIFF_CONSTANT * 2) / scale);
             }
-            ctx.save();
+            // ctx.save();
         }
 
         function getSelectionWidthLimit(img) {

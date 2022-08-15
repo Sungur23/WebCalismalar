@@ -15,7 +15,7 @@ const App: React.FC = () => {
         var numRes = [...res].sort((a, b) => a.id! - b.id!);
         // alert(res[0].id);
 
-        console.log(numRes);
+        // console.log(numRes);
         setTracks(numRes);
     };
 
