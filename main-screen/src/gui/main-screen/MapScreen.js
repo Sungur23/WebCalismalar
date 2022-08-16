@@ -21,13 +21,16 @@ class PublicMap extends Component {
                 new OlLayerTile({
                     // source: new OlSourceOSM
                     source: new XYZ({
-                        url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                        // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                        url: 'http://localhost:80/Road/{z}/{x}/{y}.png'
                     })
                 })
             ],
             view: new OlView({
                 center: this.state.center,
-                zoom: this.state.zoom
+                zoom: this.state.zoom,
+                // maxZoom: this.state.zoom * 3 / 2,
+                // minZoom: this.state.zoom / 2
             })
         });
     }

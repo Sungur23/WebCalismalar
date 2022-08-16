@@ -29,7 +29,7 @@ public class ModelConfig {
                         (long) i,
                         "AS",
                         -50 + (50 - (-50)) * r.nextDouble(),
-                        0 + (200 - (0)) * r.nextDouble(),
+                        0 + (1000 - (0)) * r.nextDouble(),
                         30);
                 tracks.add(student);
             }

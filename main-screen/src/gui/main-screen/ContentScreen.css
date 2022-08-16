@@ -28,7 +28,7 @@
     text-align: left;
     text-indent: 1vh;
     border-right: black;
-    border-right: 5px solid black;
+    /*border-right: 5px solid black;*/
     height: var(--heigt);
 }
 
@@ -44,6 +44,7 @@
 
 .content.main-column {
     display: contents;
+    overflow: hidden;
 }
 
 .content.main-column-a {

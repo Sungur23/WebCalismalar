@@ -113,11 +113,11 @@ function getTransCoord(arr) {
 }
 
 function getAzmTrans([yanca, menzil]) {
-    return canvasWidthPosition - (menzil * Math.sin(degsToRads(yanca)));
+    return canvasWidthPosition - ((menzil * Math.sin(degsToRads(yanca))) * polarYaricap / 1000);
 }
 
 function getRangeTrans([yanca, menzil]) {
-    return canvasHeightPosition - (menzil * Math.cos(degsToRads(yanca)));
+    return canvasHeightPosition - ((menzil * Math.cos(degsToRads(yanca))) * polarYaricap / 1000);
 }
 
 // function clearCanvas(canvas) {
@@ -150,11 +150,27 @@ class CanvasPanel extends Component {
         // this.ctx = this.canvas.getContext('2d');
         img.src = hh_MTT;
         this.state = {
-            cursor: {x: 0, y: 0},
-            globalCoords: {x: 0, y: 0}
+            polarRange: 1000
         }
-        window.addEventListener('mousemove', handleMouseMove);
-        // window.addEventListener('click', this.selectionControl(this.canvasRef));
+
+        this.ro = new ResizeObserver(e => {
+            //for (let en of e) {
+            console.log(e[0].target.clientWidth + " - " + e[0].target.clientHeight);
+            const canvas = this.canvasRef.current;
+
+
+            // e[0].target.clientHeight = 800;//window.innerHeight * 0.88;
+            // e[0].target.clientWidth = 1200//e[0].target.clientHeight * Math.sqrt(2);
+
+            canvas.height = e[0].target.clientHeight * 0.97;
+            canvas.width = e[0].target.clientWidth;
+
+
+            canvasWidthPosition = canvas.width / 2;
+            canvasHeightPosition = canvas.height - 10;//height * 5 / 6;
+            
+            //}
+        });
     }
 
     handleMouseClick(canvasRef) {
@@ -318,6 +334,9 @@ class CanvasPanel extends Component {
             if ((scale * zoom) > MAX_ZOOM_LIMIT || (scale * zoom) < MIN_ZOOM_LIMIT) return;
 
             // clearCanvas(canvas);
+
+            // orgnx -= scroll * cursor.x / scale;
+            // orgny -= scroll * cursor.y / scale;
             ctx.translate(orgnx, orgny);
 
             orgnx -= cursor.x / (scale * zoom) - cursor.x / scale;
@@ -438,8 +457,8 @@ class CanvasPanel extends Component {
 
     }
 
-    onClick = (canvasRef) => {
-        const canvas = canvasRef.current;
+    onClick = () => {
+        const canvas = this.canvasRef.current;
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
@@ -448,6 +467,10 @@ class CanvasPanel extends Component {
         init();
         // this.canvasDraw(ctx, width, height).call();
     };
+
+    onResize = (event) => {
+        this.ro.observe(document.getElementById("main-canvas-div"));
+    }
 
 
     componentDidMount() {
@@ -458,34 +481,39 @@ class CanvasPanel extends Component {
             compOnceControl.c = 1;
             const canvas = this.canvasRef.current;
             const ctx = canvas.getContext('2d');
-            const width = canvas.width;
-            const height = canvas.height;
-            polarYaricap = halkaSayisi * (height / 5);
-            if (polarYaricap > height)
-                polarYaricap = height;
+            // console.log("CANVAS: " + width + " - " + height);
 
-            canvasWidthPosition = width / 2;
-            canvasHeightPosition = height - 10;//height * 5 / 6;
+            polarYaricap = halkaSayisi * (canvas.height / 5);
+            if (polarYaricap > canvas.height)
+                polarYaricap = canvas.height;
+
+            canvasWidthPosition = canvas.width / 2;
+            canvasHeightPosition = canvas.height - 10;//height * 5 / 6;
+
+            // orgnx = width / 2;
+            // orgny = height / 2;
 
             // polarYaricap = halkaSayisi * (height / 6);
-            setInterval(this.canvasDraw(ctx, width, height), 1000 / 60);
+            setInterval(this.canvasDraw(ctx, canvas.width, canvas.height), 1000 / 30);
             // Scroll effect function
             canvas.onwheel = this.zoomControl(canvas);
             canvas.addEventListener('click', this.handleMouseClick(this.canvasRef));
             window.addEventListener('mousemove', this.handleMouseMove(this.canvasRef));
             window.addEventListener('mouseup', this.handleMouseDragStop(this.canvasRef));
             window.addEventListener('mousedown', this.handleMouseDragStart(this.canvasRef));
+            window.addEventListener('resize', this.onResize);
+
         }
     }
 
     render() {
-        const w = window.innerWidth * 0.65;
-        const h = window.innerHeight * 0.87;
-        return <div style={{height: "100%", backgroundColor: "#27464e", display: "flex", flexDirection: "column"}}>
-            <button className="yenile" onClick={() => this.onClick(this.canvasRef)}></button>
-            <canvas width={w} height={h} ref={this.canvasRef}
-                    style={{backgroundColor: "#27464e"}}/>
-            {/*<canvas ref={this.canvasRef}  style={{backgroundColor: "#27464e"}}/>*/}
+
+        const h = window.innerHeight * 0.88;
+        const w = h * Math.sqrt(2);//window.innerWidth * 0.65;
+
+        return <div id="main-canvas-div" className="main-canvas" onChange={() => this.onResize()}>
+            <button className="tool-yenile" onClick={() => this.onClick()}></button>
+            <canvas id="canvas" className="canvas" width={w} height={h} ref={this.canvasRef}/>
         </div>;
     }
 }

@@ -26,7 +26,7 @@ const ContentScreen: React.FC = () => {
                 </div>
             </div>
             <div className="content main-column-a">
-                <CanvasPanel className="content main-column"/>
+                <CanvasPanel/>
                 {/*<MyMap className="googleMap"/>*/}
             </div>
         </div>
