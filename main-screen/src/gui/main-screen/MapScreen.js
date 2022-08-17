@@ -22,7 +22,7 @@ class PublicMap extends Component {
                     // source: new OlSourceOSM
                     source: new XYZ({
                         // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                        url: 'http://localhost:80/GoogleMaps/Road/{z}/{x}/{y}.png'
+                        url: 'http://localhost:80/Road/{z}/{x}/{y}.png'
                     })
                 })
             ],

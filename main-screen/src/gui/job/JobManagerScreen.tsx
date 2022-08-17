@@ -2,6 +2,9 @@ import './JobManagerScreen.css';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Segmented} from 'antd';
 import {AppstoreOutlined} from '@ant-design/icons';
+import {TrackModel} from "../../api/SimulationAPI";
+import {context} from "../../api/Context";
+import {setTracks} from "../grafik/PPICanvasPanel";
 
 const JobManagerScreen: React.FC = () => {
 
@@ -32,7 +35,15 @@ const JobManagerScreen: React.FC = () => {
         },];
 
     const handleChange = (val: string) => {
-        setValue(val)
+        setValue(val);
+        //TIMF
+        if (val == modeValues[1]) {
+
+            let b = async () =>await context.services.api.api.;
+
+        } else if (val == modeValues[0]) {
+
+        }
     };
     const handleButton = () => {
         setValue(modeValues[0])
@@ -49,6 +60,15 @@ const JobManagerScreen: React.FC = () => {
         />
     );
 
+    const onTest = async () => {
+        let res: TrackModel[];
+        res = (await context.services.api.api.getTracks()).data;
+        var numRes = [...res].sort((a, b) => a.id! - b.id!);
+        // alert(res[0].id);
+
+        // console.log(numRes);
+        setTracks(numRes);
+    };
     return (
         <div className="job parent">
             {segmentedMenu}
