@@ -1,1 +1,195 @@
-{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/api/v1/simulation/putTrack/{trackId}":{"put":{"tags":["simulation-controller"],"operationId":"updateTrack","parameters":[{"name":"trackId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}},{"name":"type","in":"query","required":true,"schema":{"type":"string"}},{"name":"azimuth","in":"query","required":true,"schema":{"type":"number","format":"double"}},{"name":"range","in":"query","required":true,"schema":{"type":"number","format":"double"}},{"name":"elevation","in":"query","required":true,"schema":{"type":"number","format":"double"}}],"responses":{"200":{"description":"OK"}}}},"/api/v1/simulation/{addTrack}":{"post":{"tags":["simulation-controller"],"operationId":"registerNewTrack","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/TrackModel"}}},"required":true},"responses":{"200":{"description":"OK"}}}},"/api/v1/simulation/tracks":{"get":{"tags":["simulation-controller"],"operationId":"getTracks","responses":{"200":{"description":"OK","content":{"*/*":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/TrackModel"}}}}}}}},"/api/v1/simulation/delTrack/{trackId}":{"delete":{"tags":["simulation-controller"],"operationId":"deleteTrack","parameters":[{"name":"trackId","in":"path","required":true,"schema":{"type":"integer","format":"int64"}}],"responses":{"200":{"description":"OK"}}}}},"components":{"schemas":{"TrackModel":{"type":"object","properties":{"id":{"type":"integer","format":"int64"},"type":{"type":"string"},"azimuth":{"type":"number","format":"double"},"range":{"type":"number","format":"double"},"elevation":{"type":"number","format":"double"}}}}}}
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/v1/simulation/putTrack/{trackId}": {
+      "put": {
+        "tags": [
+          "simulation-controller"
+        ],
+        "operationId": "updateTrack",
+        "parameters": [
+          {
+            "name": "trackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "azimuth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "elevation",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/simulation/{addTrack}": {
+      "post": {
+        "tags": [
+          "simulation-controller"
+        ],
+        "operationId": "registerNewTrack",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/simulation/state": {
+      "post": {
+        "tags": [
+          "simulation-controller"
+        ],
+        "operationId": "setSimulationState",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/simulation/tracks": {
+      "get": {
+        "tags": [
+          "simulation-controller"
+        ],
+        "operationId": "getTracks",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrackModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/simulation/delTrack/{trackId}": {
+      "delete": {
+        "tags": [
+          "simulation-controller"
+        ],
+        "operationId": "deleteTrack",
+        "parameters": [
+          {
+            "name": "trackId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TrackModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "azimuth": {
+            "type": "number",
+            "format": "double"
+          },
+          "range": {
+            "type": "number",
+            "format": "double"
+          },
+          "elevation": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    }
+  }
+}

@@ -69,7 +69,7 @@ export enum ContentType {
 }
 
 export class HttpClient<SecurityDataType = unknown> {
-  public baseUrl: string = "http://localhost:8080";
+  public baseUrl: string = "http://localhost:3001";
   private securityData: SecurityDataType | null = null;
   private securityWorker?: ApiConfig<SecurityDataType>["securityWorker"];
   private abortControllers = new Map<CancelToken, AbortController>();
@@ -235,7 +235,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title OpenAPI definition
  * @version v0
- * @baseUrl http://localhost:8080
+ * @baseUrl http://localhost:3001
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   api = {
@@ -268,6 +268,22 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     registerNewTrack: (addTrack: string, data: TrackModel, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/api/v1/simulation/${addTrack}`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags simulation-controller
+     * @name SetSimulationState
+     * @request POST:/api/v1/simulation/state
+     */
+    setSimulationState: (data: boolean, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/api/v1/simulation/state`,
         method: "POST",
         body: data,
         type: ContentType.Json,

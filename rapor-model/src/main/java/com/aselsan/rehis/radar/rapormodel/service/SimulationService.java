@@ -9,29 +9,45 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @Service
 public class SimulationService {
 
-    private final TrackRepository trackRepository;
-    private final ModelConfig modelConfig;
-    private List<TrackModel> model;
-
-
-    private List<Boolean> yonYancaList;
-    private List<Boolean> yonRangeList;
     private static final int MIN_YANCA = -50;
     private static final int MAX_YANCA = 50;
     private static final int MAX_RANGE = 1000;
     private static final double azmDiff = 0.05;
     private static final double rangeDiff = 0.5;
+    private final TrackRepository trackRepository;
+    private final ModelConfig modelConfig;
+    private List<TrackModel> model;
+    private List<Boolean> yonYancaList;
+    private List<Boolean> yonRangeList;
+    private ScheduledExecutorService scheduledExecutorService;
+    private Boolean simulationState = false;
+    private Runnable trackSimulation = () -> {
+
+        List<TrackModel> tracks = getTracks();
+        for (TrackModel track : tracks) {
+            try {
+                move(track);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
 
     @Autowired
     public SimulationService(TrackRepository trackRepository, ModelConfig modelConfig) {
         this.trackRepository = trackRepository;
         this.modelConfig = modelConfig;
+
+        this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
         Random r = new Random();
 
@@ -79,38 +95,13 @@ public class SimulationService {
     public List<TrackModel> getTracks() {
 //        trackRepository.saveAll(model);
 //        return trackRepository.findAll();
+//        return model;
+        if (!simulationState && model != null) {
+            model.clear();
+        }
         return model;
     }
 
-    @Bean
-    public void trackUpdate() {
-
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-
-            if (model == null || model.size() == 0)
-                model = trackRepository.findAll();
-            for (TrackModel track : model) {
-
-                try {
-                    move(track);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-//                double azimuth = track.getAzimuth();
-//                if (azimuth >= 50) {
-//                    azimuth = -50;
-//                }
-//                track.setAzimuth(azimuth + 0.04);
-//
-//                double range = track.getRange();
-//                if (range >= 1000) {
-//                    range = 0;
-//                }
-//                track.setRange(range + 0.3);
-//            System.out.println(track.toString());
-            }
-        }, 0, 10, TimeUnit.MILLISECONDS);
-    }
 
     public void addNewTrack(TrackModel track) {
         Optional<TrackModel> trackOptional = trackRepository
@@ -144,4 +135,21 @@ public class SimulationService {
     }
 
 
+    public void setState(Boolean state) {
+        if (model == null || model.size() == 0)
+            model = trackRepository.findAll();
+        this.simulationState = state;
+        if (state) {
+            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+            scheduledExecutorService.scheduleAtFixedRate(
+                    trackSimulation,
+                    0,
+                    10,
+                    TimeUnit.MILLISECONDS);
+//                scheduledExecutorService.submit(trackSimulation);
+        } else {
+            scheduledExecutorService.shutdown();
+
+        }
+    }
 }

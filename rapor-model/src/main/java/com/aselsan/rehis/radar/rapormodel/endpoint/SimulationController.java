@@ -20,6 +20,10 @@ public class SimulationController {
         this.simulationService = simulationService;
     }
 
+    @PostMapping(path = "state")
+    public void setSimulationState(@RequestBody Boolean state) {
+        simulationService.setState(state);
+    }
 
     @GetMapping(path = "tracks")
     public List<TrackModel> getTracks() {

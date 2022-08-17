@@ -8,22 +8,22 @@ import {Api, TrackModel} from "./api/SimulationAPI";
 import {setTracks} from "./gui/grafik/PPICanvasPanel"
 
 const App: React.FC = () => {
-
-    const onTest = async () => {
-        let res: TrackModel[];
-        res = (await context.services.api.api.getTracks()).data;
-        var numRes = [...res].sort((a, b) => a.id! - b.id!);
-        // alert(res[0].id);
-
-        // console.log(numRes);
-        setTracks(numRes);
-    };
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            onTest();
-        }, 30);
-    }, []);
+    //
+    // const onTest = async () => {
+    //     let res: TrackModel[];
+    //     res = (await context.services.api.api.getTracks()).data;
+    //     var numRes = [...res].sort((a, b) => a.id! - b.id!);
+    //     // alert(res[0].id);
+    //
+    //     // console.log(numRes);
+    //     setTracks(numRes);
+    // };
+    //
+    // useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         onTest();
+    //     }, 30);
+    // }, []);
 
     return (
         <div className="parent">

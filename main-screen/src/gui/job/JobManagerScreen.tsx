@@ -11,6 +11,7 @@ const JobManagerScreen: React.FC = () => {
     const [isDisabled, setModesDisabled] = useState(false);
     const modeValues = ['STNDBY', 'TIMF', 'SAR', 'ISAR'];
     const [value, setValue] = useState(modeValues[0]);
+    const [interval, setSimID] = useState<any>(undefined);
 
     const modes = [
         {
@@ -39,10 +40,16 @@ const JobManagerScreen: React.FC = () => {
         //TIMF
         if (val == modeValues[1]) {
 
-            let b = async () =>await context.services.api.api.;
+            setSimStatus(true);
 
-        } else if (val == modeValues[0]) {
+            setSimID(setInterval(() => {
+                onTest();
+            }, 30));
 
+        } else {
+            clearInterval(interval);
+            setSimStatus(false);
+            setTracks(null);
         }
     };
     const handleButton = () => {
@@ -69,6 +76,11 @@ const JobManagerScreen: React.FC = () => {
         // console.log(numRes);
         setTracks(numRes);
     };
+
+    const setSimStatus = async (state: boolean) => {
+        let res = await context.services.api.api.setSimulationState(state);
+    };
+
     return (
         <div className="job parent">
             {segmentedMenu}

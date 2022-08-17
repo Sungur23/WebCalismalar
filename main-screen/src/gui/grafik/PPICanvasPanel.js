@@ -37,13 +37,17 @@ function init() {
     visibleWidth = 0;
     visibleHeight = 0;
 }
-let a = Utils.TRACK_TYPES.AS;
-let ppiScopeObjects = [];
+
+var ppiScopeObjects = [];
 
 export function setTracks(trackList) {
 
-    var tip : Utils.TRACK_TYPES = Utils.TRACK_TYPES[trackList[0].type];
-    console.log(tip);
+    if (trackList == null || trackList.length == 0) {
+        ppiScopeObjects = [];
+        return;
+    }
+    // var tip : Utils.TRACK_TYPES = Utils.TRACK_TYPES[trackList[0].type];
+    // console.log(tip);
     if (ppiScopeObjects.length == 0)
         ppiScopeObjects = Array(trackList.length).fill().map((u, y) => [0, 0]);
     for (let i = 0; i < ppiScopeObjects.length; i++) {
@@ -127,7 +131,7 @@ class CanvasPanel extends Component {
 
             canvasWidthPosition = canvas.width / 2;
             canvasHeightPosition = canvas.height - 10;//height * 5 / 6;
-            
+
             //}
         });
     }
@@ -384,34 +388,6 @@ class CanvasPanel extends Component {
         function getSelectionHeightLimit(img) {
 
             return (img.height / 2) + SELECTION_DIFF_CONSTANT / scale;
-        }
-
-
-        function moveTargets() {
-
-            // for (let id = 0; id < ppiScopePos.length; id++) {
-            //
-            //     ppiScopeYon[id][0] ? ppiScopePos[id][0] += -adimX : ppiScopePos[id][0] += adimX;
-            //     ppiScopeYon[id][1] ? ppiScopePos[id][1] += -adimY : ppiScopePos[id][1] += adimY;
-            //
-            //     if (ppiScopePos[id][0] > polarAngle) {
-            //         ppiScopePos[id][0] = polarAngle;
-            //         ppiScopeYon[id][0] = true;
-            //     }
-            //     if (ppiScopePos[id][0] < -polarAngle) {
-            //         ppiScopePos[id][0] = -polarAngle;
-            //         ppiScopeYon[id][0] = false;
-            //     }
-            //
-            //     if (ppiScopePos[id][1] >= polarYaricap) {
-            //         ppiScopePos[id][1] = polarYaricap;
-            //         ppiScopeYon[id][1] = true;
-            //     }
-            //     if (ppiScopePos[id][1] < 0) {
-            //         ppiScopePos[id][1] = 0;
-            //         ppiScopeYon[id][1] = false;
-            //     }
-            // }
         }
 
     }
