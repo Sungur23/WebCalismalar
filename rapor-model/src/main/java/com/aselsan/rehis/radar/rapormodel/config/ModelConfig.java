@@ -7,11 +7,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Configuration
 @ConfigurationProperties(prefix = "rapor-model.simulation")
@@ -21,20 +22,34 @@ public class ModelConfig {
 
     @Bean
     CommandLineRunner commandLineRunner(TrackRepository repository) {
-        List<TrackModel> tracks = new ArrayList<>();
-        Random r = new Random();
+
+
         return args -> {
-            for (int i = 1; i <= getSimulationTrackSize(); i++) {
-                TrackModel student = new TrackModel(
-                        (long) i,
-                        "AS",
-                        -50 + (50 - (-50)) * r.nextDouble(),
-                        0 + (1000 - (0)) * r.nextDouble(),
-                        30);
-                tracks.add(student);
-            }
+            Random r = new Random();
+            long time = System.currentTimeMillis();
+            int minRange = 0, max_range = 1000, min_azm = -50, max_azm = 50;
+
+            List<TrackModel> tracks = Stream.iterate(1, x -> x + 1)
+                    .parallel()
+                    .map(i -> {
+                        return new TrackModel(
+                                (long) i,
+                                "AS",
+                                min_azm + (max_azm - min_azm) * r.nextDouble(),
+                                minRange + (max_range - minRange) * r.nextDouble(),
+                                min_azm + (max_azm - min_azm) * r.nextDouble());
+                    })
+                    .limit(getSimulationTrackSize())
+                    .collect(Collectors.toList());
+
+            long generatedTime = System.currentTimeMillis();
+            System.err.println("Simulation objects generate time (ms): " + (generatedTime - time));
             repository.saveAll(tracks);
+            long savedTime = System.currentTimeMillis();
+            System.err.println("Simulation objects db save time (ms): " + (savedTime - generatedTime));
         };
+
+
     }
 
     public int getSimulationTrackSize() {

@@ -7,7 +7,7 @@ import OlMap from "ol/Map";
 import OlLayerTile from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
 import OlView from "ol/View";
-import CanvasPanel from "../grafik/CanvasPanel";
+import CanvasPanel from "../grafik/PPICanvasPanel";
 
 
 const ContentScreen: React.FC = () => {
