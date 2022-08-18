@@ -136,10 +136,11 @@ public class SimulationService {
 
 
     public void setState(Boolean state) {
-        if (model == null || model.size() == 0)
-            model = trackRepository.findAll();
-        this.simulationState = state;
         if (state) {
+
+            if (model == null || model.size() == 0)
+                model = trackRepository.findAll();
+
             scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
             scheduledExecutorService.scheduleAtFixedRate(
                     trackSimulation,
@@ -149,7 +150,11 @@ public class SimulationService {
 //                scheduledExecutorService.submit(trackSimulation);
         } else {
             scheduledExecutorService.shutdown();
-
+            if (model != null) {
+                trackRepository.saveAll(model);
+            }
         }
+
+        this.simulationState = state;
     }
 }

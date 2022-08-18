@@ -3,9 +3,6 @@ import {prepareContext, context} from "./api/Context";
 import HeaderScreen from "./gui/main-screen/HeaderScreen";
 import ContentScreen from "./gui/main-screen/ContentScreen";
 import BottomScreen from "./gui/main-screen/BottomScreen";
-import {useCallback, useContext, useEffect, useRef} from "react";
-import {Api, TrackModel} from "./api/SimulationAPI";
-import {setTracks} from "./gui/grafik/PPICanvasPanel"
 
 const App: React.FC = () => {
     //

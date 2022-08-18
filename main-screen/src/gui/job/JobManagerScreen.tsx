@@ -4,7 +4,7 @@ import {Segmented} from 'antd';
 import {AppstoreOutlined} from '@ant-design/icons';
 import {TrackModel} from "../../api/SimulationAPI";
 import {context} from "../../api/Context";
-import {setTracks} from "../grafik/PPICanvasPanel";
+import PPICanvasPanel, {setTracks} from "../grafik/PPICanvasPanel";
 
 const JobManagerScreen: React.FC = () => {
 
@@ -49,7 +49,7 @@ const JobManagerScreen: React.FC = () => {
         } else {
             clearInterval(interval);
             setSimStatus(false);
-            setTracks(null);
+            setTracks([]);
         }
     };
     const handleButton = () => {

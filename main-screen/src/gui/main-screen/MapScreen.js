@@ -5,7 +5,18 @@ import OlLayerTile from "ol/layer/Tile";
 import OlSourceOSM from "ol/source/OSM";
 import XYZ from 'ol/source/XYZ';
 import {fromLonLat} from 'ol/proj';
+import {Draw} from "ol/interaction";
+import VectorSource from "ol/source/Vector";
+import VectorLayer from "ol/layer/Vector";
+import {Feature} from "ol";
+import {Point} from "ol/geom";
+import {Heatmap} from "ol/layer";
 
+
+const source = new VectorSource({wrapX: false});
+const vector = new VectorLayer({
+    source: source
+});
 
 class PublicMap extends Component {
     constructor(props) {
@@ -24,7 +35,8 @@ class PublicMap extends Component {
                         // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
                         url: 'http://localhost:80/Road/{z}/{x}/{y}.png'
                     })
-                })
+                }),
+                vector
             ],
             view: new OlView({
                 center: this.state.center,
@@ -33,6 +45,24 @@ class PublicMap extends Component {
                 // minZoom: this.state.zoom / 2
             })
         });
+        this.drawObject();
+    }
+
+    drawObject(pos) {
+
+        var point = new Feature({
+            geometry: new Point(fromLonLat([32.815, 39.918])),
+            weight: 20
+        });
+        source.addFeature(point);
+
+        point.getGeometry().setCoordinates(fromLonLat([32.815, 39.918]));
+
+        // let draw = new Draw({
+        //     source: source,
+        //     type: "Point"
+        // });
+        // this.olmap.addInteraction(draw);
     }
 
     updateMap() {
