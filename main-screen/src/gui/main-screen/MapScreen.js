@@ -33,7 +33,25 @@ class PublicMap extends Component {
                     // source: new OlSourceOSM
                     source: new XYZ({
                         // url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                        url: 'http://localhost:80/Road/{z}/{x}/{y}.png'
+                        // url: 'http://localhost:80/Road/{z}/{x}/{y}.png'
+
+                        //roadmap
+                        // url: 'http://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}'
+
+                        //terrain
+                        // url: 'http://mt0.google.com/vt/lyrs=p&hl=en&x={x}&y={y}&z={z}'
+
+                        //Altered roadmap
+                        // url: 'http://mt0.google.com/vt/lyrs=r&hl=en&x={x}&y={y}&z={z}'
+
+                        //Satellite only
+                        // url: 'http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}'
+
+                        //Terrain only
+                        // url: 'http://mt0.google.com/vt/lyrs=t&hl=en&x={x}&y={y}&z={z}'
+
+                        //Hybrid
+                        url: 'http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}'
                     })
                 }),
                 vector
