@@ -51,6 +51,8 @@
     text-align: left;
     flex: 65%;
     height: var(--heigt);
+    width: 100%;
+    height: 100%;
     /*display: contents;*/
 }
 

@@ -1,3 +1,8 @@
+export function wrap(degree: number) {
+    return (degree + 360) % 360;
+}
+
+
 class Utils {
 
     static degsToRads = (deg: number) => {

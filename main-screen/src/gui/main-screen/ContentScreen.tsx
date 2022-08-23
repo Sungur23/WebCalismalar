@@ -8,6 +8,9 @@ import OlLayerTile from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
 import OlView from "ol/View";
 import CanvasPanel from "../grafik/PPICanvasPanel";
+import PolarGraphPanel from "../grafik/polar/PolarGraphPanel";
+import {Axis, AxisVisualType} from "../../utils/GraphParts";
+import PPIGraphPanel from "../grafik/ppi/PPIGraphPanel";
 
 
 const ContentScreen: React.FC = () => {
@@ -26,7 +29,12 @@ const ContentScreen: React.FC = () => {
                 </div>
             </div>
             <div className="content main-column-a">
-                <CanvasPanel/>
+                {/*<CanvasPanel/>*/}
+                {/*<PolarGraphPanel*/}
+                {/*    axis={new Axis("Metre", "m", "m", "#89CFF0", AxisVisualType.POINT, [0, 1000])}/>*/}
+
+                <PPIGraphPanel
+                    axis={new Axis("Metre", "m", "m", "#89CFF0", AxisVisualType.POINT, [0, 1000], 50)}/>
                 {/*<MyMap className="googleMap"/>*/}
             </div>
         </div>
