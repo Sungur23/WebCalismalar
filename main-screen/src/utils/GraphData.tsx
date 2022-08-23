@@ -21,4 +21,9 @@ export class GraphData {
         this.x = time.concat(this.x)
         this.y = this.y.concat(value);
     }
+
+    clear = () => {
+        this.x = [];
+        this.y = [];
+    }
 }

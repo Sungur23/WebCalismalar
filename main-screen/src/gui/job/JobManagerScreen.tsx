@@ -4,7 +4,8 @@ import {Segmented} from 'antd';
 import {AppstoreOutlined} from '@ant-design/icons';
 import {TrackModel} from "../../api/SimulationAPI";
 import {context} from "../../api/Context";
-import PPICanvasPanel, {setTracks} from "../grafik/PPICanvasPanel";
+// import PPICanvasPanel, {setTracks} from "../grafik/PPICanvasPanel";
+import {setTracks} from "../grafik/ppi/PPIGraphPanel";
 
 const JobManagerScreen: React.FC = () => {
 

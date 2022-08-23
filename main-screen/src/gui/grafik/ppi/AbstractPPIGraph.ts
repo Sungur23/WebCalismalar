@@ -4,6 +4,7 @@ import {GraphData} from "../../../utils/GraphData";
 import {PPIProjection} from "../../../utils/PPIProjection";
 import Myr from "../../../utils/myr";
 import Utils from "../../../utils/Utils";
+import hh_MTT from "../../../img/hh_MTT_25.png";
 
 
 var centerX: number = NaN
@@ -48,17 +49,94 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         }
         this.axis = Axis.copy(axis)
         radiusPx = this.axis.range![1] / Math.sqrt(2);
+        this.img.src = hh_MTT;
 
         // this.polarYaricap = this.axis.range![1] / Math.sqrt(2);
         this.polarAngle = this.axis.angle!;
 
         // Scroll effect function
         canvas2d.addEventListener('wheel', (event) => this.zoomControl(event));
-        // canvas2d.addEventListener('click', (event) => this.handleMouseClick(event));
+        canvas2d.addEventListener('click', (event) => this.handleMouseClick(event));
         canvas2d.addEventListener('mousemove', (event) => this.handleMouseMove(event));
         canvas2d.addEventListener('mouseup', (event) => this.handleMouseDragStop(event));
         canvas2d.addEventListener('mousedown', (event) => this.handleMouseDragStart(event));
     }
+
+    getScaledPosition(canvas: HTMLCanvasElement, pos: any) {
+        if (this.scale == 1)
+            return pos;
+
+        const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+        const transform = context.getTransform();
+
+        const invertedScaleX = 1 / transform.a;
+        const invertedScaleY = 1 / transform.d;
+
+        const x = invertedScaleX * pos[0] - invertedScaleX * transform.e;
+        const y = invertedScaleY * pos[1] - invertedScaleY * transform.f;
+
+        return [x, y];
+    }
+
+    control() {
+        var rect = this.canvas2d.getBoundingClientRect();
+        if ((this.cursor.clickX < 0 || this.cursor.clickX > this.canvas2d.width)
+            || (this.cursor.clickY < 0 || this.cursor.clickY > this.canvas2d.height)) {
+            return;
+        }
+        var str = "";
+        var selId = -1;
+        const mouseScaled = this.getScaledPosition(this.canvas2d, [this.cursor.clickX, this.cursor.clickY]);
+        const data = this.getData();
+        const target = [NaN, NaN];
+        for (let i = 0; i < data.x.length; i++) {
+
+            // const coord = getImgPos(img, getTransCoord(ppiScopePos[i]));
+
+            this.proj.toView([this.axis.toRatio(data.y[i]), data.x[i]], target);
+            // const coord = this.getTransCoord(ppiScopeObjects[i]);
+            const number = Math.floor(Utils.getPositionHipotenus(target, mouseScaled));
+
+            str = i + " --> " + [Math.floor(target[0]), Math.floor(target[1])]
+                + " - " + [this.cursor.clickX, this.cursor.clickY] + " :" + number;
+            const carpan = this.scale == 1 ? 0 : (this.scale / 20);
+            if (number < 12 - 12 * carpan) {
+
+                // ilk bulgu
+                if (this.diffControl.id == -1) {
+                    selId = i;
+                    this.diffControl.id = i;
+                    this.diffControl.diff = number;
+                }
+                // daha yakin hedef varsa guncelle
+                else if (number < this.diffControl.diff) {
+                    this.diffControl.id = i;
+                    this.diffControl.diff = number;
+                }
+            }
+        }
+        this.selectedId.id = selId;
+        this.diffControl.id = -1;
+        this.diffControl.diff = 0;
+    }
+
+    handleMouseClick(event: any) {
+
+        var rect = this.canvas2d.getBoundingClientRect();
+        this.cursor.clickX = ((event.clientX - rect.left) / (rect.right - rect.left)) * this.canvas2d.width;
+        this.cursor.clickY = ((event.clientY - rect.top) / (rect.bottom - rect.top)) * this.canvas2d.height
+
+        if ((this.cursor.clickX < 0 || this.cursor.clickX > this.canvas2d.width)
+            || (this.cursor.clickY < 0 || this.cursor.clickY > this.canvas2d.height)) {
+            return;
+        }
+
+        const width = this.canvas2d.width;
+        const height = this.canvas2d.height;
+
+        event.preventDefault();
+        this.control();
+    };
 
     handleMouseMove(event: any) {
 
@@ -236,7 +314,51 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
 
     public drawGL(): void {
 
+        const data = this.getData()
+        const target = [NaN, NaN]
+        for (let i = 0; i < data.x.length; i++) {
+            this.proj.toView([this.axis.toRatio(data.y[i]), data.x[i]], target);
+            this.graphics.drawImage(
+                this.img,
+                target[0] - this.img.width / 2,
+                target[1] - this.img.height / 2,
+                this.img.width / this.scale,
+                this.img.height / this.scale);
+        }
 
+        if (this.selectedId.id != -1) {
+            this.proj.toView([this.axis.toRatio(data.y[this.selectedId.id]), data.x[this.selectedId.id]], target);
+
+            this.graphics.strokeStyle = 'red';
+            this.graphics.lineWidth = 2 / this.scale;
+
+            const w = this.img.width;
+            const h = this.img.height;
+            const tx = target[0] - this.getSelectionWidthLimit(this.img);
+            const ty = target[1] - this.getSelectionHeightLimit(this.img);
+
+            this.graphics.strokeRect(tx, ty,
+                (w + this.SELECTION_DIFF_CONSTANT * 2) / this.scale,
+                (h + this.SELECTION_DIFF_CONSTANT * 2) / this.scale);
+        }
+        // ctx.save();
+
+    }
+
+    getSelectionWidthLimit(img: any) {
+        return (img.width / 2) + this.SELECTION_DIFF_CONSTANT / this.scale;
+    }
+
+    getSelectionHeightLimit(img: any) {
+        return (img.height / 2) + this.SELECTION_DIFF_CONSTANT / this.scale;
+    }
+
+    public clearData() {
+        this.getData().clear();
+    }
+
+    public getAllData(): GraphData {
+        return this.getData();
     }
 
     protected init() {
