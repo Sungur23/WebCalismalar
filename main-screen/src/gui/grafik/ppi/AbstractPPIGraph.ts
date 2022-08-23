@@ -168,6 +168,7 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         this.clearCanvas();
         this.graphics.strokeStyle = 'gray';
 
+        this.graphics.globalAlpha = 0.1;
         // const halkaSayisi = 4;
         // const canvasWidthPosition = this.canvas2d.width / 2;
         // const canvasHeightPosition = this.canvas2d.height;
@@ -187,10 +188,11 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
             this.graphics.closePath();
         }
 
+        this.graphics.globalAlpha = 1;
         this.graphics.beginPath()
         const target = [NaN, NaN]
         // this.graphics.setLineDash([10, 20])
-        this.graphics.lineWidth = 1
+        this.graphics.lineWidth = 0.2
         for (let t = -this.polarAngle; t <= this.polarAngle; t += 10) {
             this.proj.toView([1, t], target);
             this.graphics.moveTo(centerX, centerY)
@@ -216,7 +218,7 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         this.graphics.textBaseline = "top"
         this.graphics.fillStyle = this.axis.hexColor
         // Menzil degerleri negatif yon
-        for (let r = 0; r <= radiusPx; r += radiusPx / 4) {
+        for (let r = radiusPx / 4; r <= radiusPx; r += radiusPx / 4) {
             this.graphics.moveTo(centerX, centerY)
             this.proj.toView([r / radiusPx, -this.polarAngle], target);
             this.graphics.fillText(this.axis.toValue(r / radiusPx).toFixed(0), target[0], target[1])
