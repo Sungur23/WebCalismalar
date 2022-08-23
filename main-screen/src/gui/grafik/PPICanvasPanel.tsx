@@ -378,8 +378,6 @@ class PPICanvasPanel extends Component {
     onClick = () => {
         const canvas = this.canvasRef.current as HTMLCanvasElement;
         const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-        const width = canvas.width;
-        const height = canvas.height;
 
         ctx.resetTransform();
         this.init();

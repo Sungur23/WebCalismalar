@@ -16,15 +16,15 @@ class Utils {
     static getHalkaRenk = (id: number) => {
 
         if (id == 0)
-            return '#133C40';
+            return '#04042a';
         else if (id == 1)
-            return '#113539';
+            return '#04042a';
         else if (id == 2)
-            return '#102F33';
+            return '#04042a';
         else if (id == 3)
-            return '#0E272B';
+            return '#04042a';
         else
-            return '#133C40';
+            return '#04042a';
     }
 
 }

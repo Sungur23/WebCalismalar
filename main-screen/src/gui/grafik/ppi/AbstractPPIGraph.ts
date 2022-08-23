@@ -1,7 +1,7 @@
 import {AbstractGraph2D, MARGIN_LEFT_IDX, MARGIN_TOP_IDX} from "../AbstractGraph2D";
 import {Axis} from "../../../utils/GraphParts";
 import {GraphData} from "../../../utils/GraphData";
-import {ScopeProjection} from "../../../utils/ScopeProjection";
+import {PPIProjection} from "../../../utils/PPIProjection";
 import Myr from "../../../utils/myr";
 import Utils from "../../../utils/Utils";
 
@@ -15,8 +15,6 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
     public polarAngle = 50;
     public img = new Image();
     public SELECTION_DIFF_CONSTANT = 4;
-    public canvasWidthPosition: number;
-    public canvasHeightPosition: number;
     public scale = 1;
     public orgnx = (0);
     public orgny = (0);
@@ -24,7 +22,6 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
     public visibleHeight = 0;
     public zoom = 1;
     public halkaSayisi = 4;
-    public polarYaricap: number;
     public zoomIntensity = 0.05;
     public MAX_ZOOM_LIMIT = 16;
     public MIN_ZOOM_LIMIT = 1;
@@ -39,7 +36,7 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
     public selectedId = {
         id: -1
     }
-    protected proj = new ScopeProjection();
+    protected proj = new PPIProjection();
 
     public constructor(canvas2d: HTMLCanvasElement,
                        protected axis: Axis,
@@ -50,11 +47,10 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
             throw new Error("You must define range for axis for polar graphs")
         }
         this.axis = Axis.copy(axis)
+        radiusPx = this.axis.range![1] / Math.sqrt(2);
 
-        this.polarYaricap = this.axis.range![1] / Math.sqrt(2);
+        // this.polarYaricap = this.axis.range![1] / Math.sqrt(2);
         this.polarAngle = this.axis.angle!;
-        this.canvasWidthPosition = canvas2d.width / 2;
-        this.canvasHeightPosition = canvas2d.height - 10;
 
         // Scroll effect function
         canvas2d.addEventListener('wheel', (event) => this.zoomControl(event));
@@ -92,7 +88,6 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         }
     }
 
-
     handleMouseDragStop(event: any) {
         // event.stopPropagation();
         // clearCanvas(canvas);
@@ -100,7 +95,6 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         this.dragStart = {x: 0, y: 0};
         this.mouseDragActive = false;
     };
-
 
     handleMouseDragStart(event: any) {
 
@@ -148,6 +142,11 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         this.drawCanvas()
     };
 
+    resetCanvas() {
+        this.graphics.resetTransform();
+        this.drawCanvas();
+    }
+
     clearCanvas() {
         const transform = this.graphics.getTransform();
         this.graphics.clearRect(-transform.e / transform.a, -transform.f / transform.d,
@@ -157,11 +156,11 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
     public resize(width: number, height: number, repaint = false, force = false) {
         super.resize(width, height, repaint, force);
 
-        radiusPx = Math.min(this.width, this.height) / 2;
+        // radiusPx = Math.min(this.width, this.height) / 2;
         centerX = this.width / 2 + this.margins[MARGIN_LEFT_IDX]
-        centerY = this.height / 2 + this.margins[MARGIN_TOP_IDX]
+        centerY = this.height + this.margins[MARGIN_TOP_IDX]
 
-        this.proj?.update(0, centerX, centerY, this.width, this.height, 1);
+        this.proj?.update(0, centerX, centerY, this.width, this.height, 1, radiusPx);
     }
 
     public drawCanvas(): void {
@@ -177,16 +176,60 @@ export abstract class AbstractPPIGraph extends AbstractGraph2D {
         for (let i = 0; i < this.halkaSayisi; i++) {
 
             this.graphics.beginPath();
-            this.graphics.moveTo(this.canvasWidthPosition!, this.canvasHeightPosition!);
-            this.graphics.arc(this.canvasWidthPosition!, this.canvasHeightPosition!,
-                ((this.halkaSayisi - i) * this.polarYaricap! / this.halkaSayisi),
+            this.graphics.moveTo(centerX!, centerY!);
+            this.graphics.arc(centerX!, centerY!,
+                ((this.halkaSayisi - i) * radiusPx! / this.halkaSayisi),
                 Utils.degsToRads(-this.polarAngle - 90), Utils.degsToRads(this.polarAngle - 90), false);
-            this.graphics.moveTo(this.canvasWidthPosition!, this.canvasHeightPosition!);
+            this.graphics.moveTo(centerX!, centerY!);
 
             this.graphics.fillStyle = Utils.getHalkaRenk(i);
             this.graphics.fill();
             this.graphics.closePath();
         }
+
+        this.graphics.beginPath()
+        const target = [NaN, NaN]
+        // this.graphics.setLineDash([10, 20])
+        this.graphics.lineWidth = 1
+        for (let t = -this.polarAngle; t <= this.polarAngle; t += 10) {
+            this.proj.toView([1, t], target);
+            this.graphics.moveTo(centerX, centerY)
+            this.graphics.lineTo(target[0], target[1])
+            this.proj.toView([1, t], target);
+        }
+
+        // this.graphics.stroke()
+        // this.graphics.beginPath()
+        // this.graphics.setLineDash([])
+        for (let r = radiusPx / 4; r <= radiusPx; r += radiusPx / 4) {
+            this.graphics.moveTo(centerX, centerY)
+            this.graphics.arc(centerX, centerY, r, Utils.degsToRads(-this.polarAngle - 90), Utils.degsToRads(this.polarAngle - 90))
+        }
+        this.graphics.fillStyle = "rgba(255, 255, 255, 0.85)"
+        // Yanca acilari
+        for (let t = -this.polarAngle; t <= this.polarAngle; t += 10) {
+            this.proj.toView([1 + 16 / radiusPx, t], target);
+            this.graphics.fillText(t + "", target[0], target[1])
+        }
+        this.graphics.font = `10px`
+        this.graphics.textAlign = "right"
+        this.graphics.textBaseline = "top"
+        this.graphics.fillStyle = this.axis.hexColor
+        // Menzil degerleri negatif yon
+        for (let r = 0; r <= radiusPx; r += radiusPx / 4) {
+            this.graphics.moveTo(centerX, centerY)
+            this.proj.toView([r / radiusPx, -this.polarAngle], target);
+            this.graphics.fillText(this.axis.toValue(r / radiusPx).toFixed(0), target[0], target[1])
+        }
+
+        // Menzil degerleri pozitif yon
+        for (let r = radiusPx / 4; r <= radiusPx; r += radiusPx / 4) {
+            this.graphics.moveTo(centerX, centerY)
+            this.proj.toView([(r + 5) / radiusPx, this.polarAngle + 1], target);
+            this.graphics.fillText(this.axis.toValue(r / radiusPx).toFixed(0), target[0], target[1])
+        }
+
+        this.graphics.stroke()
     }
 
     public drawGL(): void {

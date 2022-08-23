@@ -19,7 +19,7 @@ export abstract class AbstractGraph2D {
         this.graphics = canvas2d.getContext('2d')!;
         this.resize(canvas2d.width, canvas2d.height, false, true)
         this.repaint()
-        // setInterval(() => this.repaint(), 1000 / 30);
+        setInterval(() => this.repaint(), 1000 / 30);
     }
 
     public resize(width: number, height: number, repaint = false, force = false) {

@@ -53,6 +53,16 @@
     height: var(--heigt);
     width: 100%;
     height: 100%;
+    display: inline-flex;
+    flex-direction: column;
+    background-color: #444b50
+}
+
+.content.main-column-grafik {
+    text-align: left;
+    /*height: var(--heigt);*/
+    width: 100%;
+    height: 100%;
     /*display: contents;*/
 }
 

@@ -10,11 +10,15 @@ import OlView from "ol/View";
 import CanvasPanel from "../grafik/PPICanvasPanel";
 import PolarGraphPanel from "../grafik/polar/PolarGraphPanel";
 import {Axis, AxisVisualType} from "../../utils/GraphParts";
-import PPIGraphPanel from "../grafik/ppi/PPIGraphPanel";
+import PPIGraphPanel, {ppiOnClick} from "../grafik/ppi/PPIGraphPanel";
 
 
 const ContentScreen: React.FC = () => {
 
+    const axis =
+        new Axis("Metre",
+            "m", "m",
+            "#89CFF0", AxisVisualType.POINT, [0, 1000], 50);
 
     return (
         <div className="content parent">
@@ -28,13 +32,18 @@ const ContentScreen: React.FC = () => {
                     {/*<CanvasPanel/>*/}
                 </div>
             </div>
+
             <div className="content main-column-a">
                 {/*<CanvasPanel/>*/}
                 {/*<PolarGraphPanel*/}
                 {/*    axis={new Axis("Metre", "m", "m", "#89CFF0", AxisVisualType.POINT, [0, 1000])}/>*/}
 
-                <PPIGraphPanel
-                    axis={new Axis("Metre", "m", "m", "#89CFF0", AxisVisualType.POINT, [0, 1000], 50)}/>
+
+                <button className="tool-yenile" onClick={ppiOnClick}></button>
+                <div className="content main-column-grafik">
+                    <PPIGraphPanel
+                        axis={axis}/>
+                </div>
                 {/*<MyMap className="googleMap"/>*/}
             </div>
         </div>

@@ -8,7 +8,8 @@
 }
 
 .tool-yenile {
-    background-color: #27464e;
+    /*background-color: #27464e;*/
+    background-color: transparent;
     flex: 3%;
     margin: auto;
     width: 22px;
@@ -27,5 +28,4 @@
     /*width: 1200px;*/
     /*height: 800px;*/
     align-self: center;
-
 }
