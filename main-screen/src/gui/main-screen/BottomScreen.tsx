@@ -1,6 +1,5 @@
 import './BottomScreen.css';
 import {useEffect, useState} from "react";
-import JobManagerScreen from "../job/JobManagerScreen";
 
 const BottomScreen: React.FC = () => {
 

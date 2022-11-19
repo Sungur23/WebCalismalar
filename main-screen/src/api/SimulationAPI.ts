@@ -24,6 +24,12 @@ export interface TrackModel {
   elevation?: number;
 }
 
+export interface PPILineModel {
+  /** @format int32 */
+  lineId?: number;
+  rgbArray?: number[];
+}
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, "body" | "bodyUsed">;
 
@@ -244,7 +250,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags simulation-controller
      * @name UpdateTrack
-     * @request PUT:/api/v1/simulation/putTrack/{trackId}
+     * @request PUT:/api/v1/simulation/track/putTrack/{trackId}
      */
     updateTrack: (
       trackId: number,
@@ -252,7 +258,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       params: RequestParams = {},
     ) =>
       this.request<void, any>({
-        path: `/api/v1/simulation/putTrack/${trackId}`,
+        path: `/api/v1/simulation/track/putTrack/${trackId}`,
         method: "PUT",
         query: query,
         ...params,
@@ -263,11 +269,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags simulation-controller
      * @name RegisterNewTrack
-     * @request POST:/api/v1/simulation/{addTrack}
+     * @request POST:/api/v1/simulation/track/{addTrack}
      */
     registerNewTrack: (addTrack: string, data: TrackModel, params: RequestParams = {}) =>
       this.request<void, any>({
-        path: `/api/v1/simulation/${addTrack}`,
+        path: `/api/v1/simulation/track/${addTrack}`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -279,11 +285,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags simulation-controller
      * @name SetSimulationState
-     * @request POST:/api/v1/simulation/state
+     * @request POST:/api/v1/simulation/track/state
      */
     setSimulationState: (data: boolean, params: RequestParams = {}) =>
       this.request<void, any>({
-        path: `/api/v1/simulation/state`,
+        path: `/api/v1/simulation/track/state`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -293,13 +299,27 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
+     * @tags video-controller
+     * @name GetPpiLine
+     * @request GET:/api/v1/simulation/video/video/{lineID}
+     */
+    getPpiLine: (lineId: number, params: RequestParams = {}) =>
+      this.request<PPILineModel, any>({
+        path: `/api/v1/simulation/video/video/${lineId}`,
+        method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags simulation-controller
      * @name GetTracks
-     * @request GET:/api/v1/simulation/tracks
+     * @request GET:/api/v1/simulation/track/tracks
      */
     getTracks: (params: RequestParams = {}) =>
       this.request<TrackModel[], any>({
-        path: `/api/v1/simulation/tracks`,
+        path: `/api/v1/simulation/track/tracks`,
         method: "GET",
         ...params,
       }),
@@ -309,11 +329,11 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags simulation-controller
      * @name DeleteTrack
-     * @request DELETE:/api/v1/simulation/delTrack/{trackId}
+     * @request DELETE:/api/v1/simulation/track/delTrack/{trackId}
      */
     deleteTrack: (trackId: number, params: RequestParams = {}) =>
       this.request<void, any>({
-        path: `/api/v1/simulation/delTrack/${trackId}`,
+        path: `/api/v1/simulation/track/delTrack/${trackId}`,
         method: "DELETE",
         ...params,
       }),

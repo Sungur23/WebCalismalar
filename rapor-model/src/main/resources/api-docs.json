@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/api/v1/simulation/putTrack/{trackId}": {
+    "/api/v1/simulation/track/putTrack/{trackId}": {
       "put": {
         "tags": [
           "simulation-controller"
@@ -70,7 +70,7 @@
         }
       }
     },
-    "/api/v1/simulation/{addTrack}": {
+    "/api/v1/simulation/track/{addTrack}": {
       "post": {
         "tags": [
           "simulation-controller"
@@ -93,7 +93,7 @@
         }
       }
     },
-    "/api/v1/simulation/state": {
+    "/api/v1/simulation/track/state": {
       "post": {
         "tags": [
           "simulation-controller"
@@ -116,7 +116,38 @@
         }
       }
     },
-    "/api/v1/simulation/tracks": {
+    "/api/v1/simulation/video/video/{lineID}": {
+      "get": {
+        "tags": [
+          "video-controller"
+        ],
+        "operationId": "getPPILine",
+        "parameters": [
+          {
+            "name": "lineID",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PPILineModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/simulation/track/tracks": {
       "get": {
         "tags": [
           "simulation-controller"
@@ -139,7 +170,7 @@
         }
       }
     },
-    "/api/v1/simulation/delTrack/{trackId}": {
+    "/api/v1/simulation/track/delTrack/{trackId}": {
       "delete": {
         "tags": [
           "simulation-controller"
@@ -187,6 +218,22 @@
           "elevation": {
             "type": "number",
             "format": "double"
+          }
+        }
+      },
+      "PPILineModel": {
+        "type": "object",
+        "properties": {
+          "lineId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "rgbArray": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       }

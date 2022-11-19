@@ -1,22 +1,21 @@
 package com.aselsan.rehis.radar.rapormodel.service;
 
 import com.aselsan.rehis.radar.rapormodel.config.ModelConfig;
+import com.aselsan.rehis.radar.rapormodel.model.PPILineModel;
 import com.aselsan.rehis.radar.rapormodel.model.TrackModel;
 import com.aselsan.rehis.radar.rapormodel.repository.TrackRepository;
+import com.aselsan.rehis.radar.rapormodel.simulation.VideoSimulation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Service
-public class SimulationService {
+public class TrackSimulationService {
 
     private static final int MIN_YANCA = -50;
     private static final int MAX_YANCA = 50;
@@ -25,6 +24,7 @@ public class SimulationService {
     private static final double rangeDiff = 0.5;
     private final TrackRepository trackRepository;
     private final ModelConfig modelConfig;
+    private final VideoSimulation videoSimulation;
     private List<TrackModel> model;
     private List<Boolean> yonYancaList;
     private List<Boolean> yonRangeList;
@@ -43,9 +43,10 @@ public class SimulationService {
     };
 
     @Autowired
-    public SimulationService(TrackRepository trackRepository, ModelConfig modelConfig) {
+    public TrackSimulationService(TrackRepository trackRepository, ModelConfig modelConfig, VideoSimulation videoSimulation) {
         this.trackRepository = trackRepository;
         this.modelConfig = modelConfig;
+        this.videoSimulation = videoSimulation;
 
         this.scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
@@ -60,6 +61,7 @@ public class SimulationService {
         }
     }
 
+    //region track move simulation
     private void move(TrackModel track) {
 
         int index = track.getId().intValue() - 1;
@@ -92,6 +94,33 @@ public class SimulationService {
         }
     }
 
+    public void setState(Boolean state) {
+
+        if (state) {
+
+            if (!this.simulationState) {
+                if (model == null || model.size() == 0)
+                    model = trackRepository.findAll();
+                scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+                scheduledExecutorService.scheduleAtFixedRate(
+                        trackSimulation,
+                        0,
+                        10,
+                        TimeUnit.MILLISECONDS);
+//                scheduledExecutorService.submit(trackSimulation);
+            }
+        } else {
+            scheduledExecutorService.shutdown();
+            if (model != null) {
+                trackRepository.saveAll(model);
+            }
+        }
+
+        this.simulationState = state;
+    }
+    //endregion
+
+    //region track service functions
     public List<TrackModel> getTracks() {
 //        trackRepository.saveAll(model);
 //        return trackRepository.findAll();
@@ -133,28 +162,11 @@ public class SimulationService {
         track.setRange(range);
         track.setElevation(elevation);
     }
+    //endregion
 
-
-    public void setState(Boolean state) {
-        if (state) {
-
-            if (model == null || model.size() == 0)
-                model = trackRepository.findAll();
-
-            scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
-            scheduledExecutorService.scheduleAtFixedRate(
-                    trackSimulation,
-                    0,
-                    10,
-                    TimeUnit.MILLISECONDS);
-//                scheduledExecutorService.submit(trackSimulation);
-        } else {
-            scheduledExecutorService.shutdown();
-            if (model != null) {
-                trackRepository.saveAll(model);
-            }
-        }
-
-        this.simulationState = state;
+    //region video service functions
+    public PPILineModel getModelWithLineID(int lineID) {
+        return this.videoSimulation.getModelFromLineID(lineID);
     }
+    //endregion
 }

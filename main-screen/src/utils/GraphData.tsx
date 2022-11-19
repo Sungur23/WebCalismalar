@@ -26,4 +26,18 @@ export class GraphData {
         this.x = [];
         this.y = [];
     }
+
+    getX = (i: number): number => {
+        return this.x[0];
+    }
+
+    getY = (i: number): number => {
+        return this.y[0];
+    }
+
+
+    setData(d: GraphData) {
+        this.x = d.x;
+        this.y = d.y;
+    }
 }

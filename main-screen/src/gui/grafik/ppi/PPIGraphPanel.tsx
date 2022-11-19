@@ -3,36 +3,82 @@ import {GraphData} from "../../../utils/GraphData";
 import PPIGraph from "./PPIGraph";
 import {Axis} from "../../../utils/GraphParts";
 import {useResizeDetector} from "react-resize-detector";
-import {TrackModel} from "../../../api/SimulationAPI";
+import {PPILineModel, TrackModel} from "../../../api/SimulationAPI";
 
+import WebWorker from "web-worker:./PPIRadarVideoWorker.ts"
+import PPIRadarVideoWorker from "./PPIRadarVideoWorker"
 
 var ppiGraph: PPIGraph;
+var graphData: GraphData;
+var zoomMode: boolean = false;
+var shift = 0;
 
 export function ppiOnClick() {
     ppiGraph.resetCanvas();
 }
 
-export function setTracks(trackList: TrackModel[]) {
+export function setZoomMode() {
+    zoomMode = !zoomMode;
+    ppiGraph.setZoomMode(zoomMode);
+}
 
-    if (trackList == null || trackList.length == 0) {
-        console.log("PPI Scope Object Reset")
-        ppiGraph.clearData();
-    }
+export function setSecMode() {
+    zoomMode = false;
+    ppiGraph.setSecimMod(true);
+}
+
+export const setTracks = (trackList: TrackModel[]) => {
+
+    // ppiGraph.clearData();
+    graphData.x = []
+    graphData.y = []
+    // if (trackList == null || trackList.length == 0) {
+    //     console.log("PPI Scope Object Reset")
+    //     ppiGraph.clearData();
+    // }
     // var tip : Utils.TRACK_TYPES = Utils.TRACK_TYPES[trackList[0].type];
     // console.log(tip);
-    if (ppiGraph.getAllData().x.length == 0) {
-        ppiGraph.getAllData().x = Array(trackList.length).fill(0);
-        ppiGraph.getAllData().y = Array(trackList.length).fill(0);
+    // const data = new GraphData();
+    for (let i = 0; i < trackList.length; i++) {
+        graphData.x[i] = trackList[i].azimuth!;
+        graphData.y[i] = trackList[i].range!;
     }
-    for (let i = 0; i < ppiGraph.getAllData().x.length; i++) {
-        ppiGraph.getAllData().x[i] = trackList[i].azimuth!;
-        ppiGraph.getAllData().y[i] = trackList[i].range!;
+    // ppiGraph.setAllData(data);
+
+}
+
+
+export const setPPILineVideo = (line: PPILineModel) => {
+
+    const id = line.lineId!;
+    if (id == ppiGraph.polarAngle * 2)
+        shift += 5;
+    if (ppiGraph.lineModel) {
+
+        const sId = (id + shift) % (ppiGraph.polarAngle * 2 + 1)
+
+        ppiGraph.lineModel[sId] = line;
+        ppiGraph.drawRadarVideo(sId, line.rgbArray!)
+    } else {
+        ppiGraph.lineModel = [];
+        ppiGraph.lineModel[id] = line;
+        ppiGraph.drawRadarVideo(id, line.rgbArray!)
     }
+
+}
+
+export const drawRadarVideo = async () => {
+    ppiGraph.drawRadarVideoAll()
+}
+
+export const cleanRadarVideo = async () => {
+    ppiGraph.lineModel = [];
+    ppiGraph.drawRadarVideoAll()
 }
 
 export default function PPIGraphPanel(props: { axis: Axis }) {
     const canvas2dRef = useRef<HTMLCanvasElement>(null);
-    var graphData: GraphData;
+    const canvasRadarVideoRef = useRef<HTMLCanvasElement>(null);
 
     const {
         height,
@@ -44,19 +90,30 @@ export default function PPIGraphPanel(props: { axis: Axis }) {
     });
     useEffect(() => {
         const canvas2d = canvas2dRef.current;
-        if (canvas2d && rootDiv.current != null && width && height) {
+        const canvasRadarVideo = canvasRadarVideoRef.current;
+
+        if (canvas2d && canvasRadarVideo && rootDiv.current != null && width && height && ppiGraph != null) {
+            ppiGraph.resize(width!, height!, true, true);
+        }
+
+        if (canvas2d && canvasRadarVideo && rootDiv.current != null && width && height && ppiGraph == null) {
             // alert("Hello + count: " + count + " |" + width.toFixed(1) + " : " + height.toFixed(1))
             graphData = new GraphData();
             // graphData.x = [-30, 15]
             // graphData.y = [550, 220]
-            ppiGraph = new PPIGraph(canvas2d, props.axis, () => graphData);
+            // canvas2d.transferControlToOffscreen();
+            ppiGraph = new PPIGraph(canvas2d, canvasRadarVideo, props.axis, graphData);
             ppiGraph.resize(width!, height!, true, true);
         }
-    }, [width, height]);
+
+    }, [width, height, canvas2dRef, canvasRadarVideoRef]);
 
     return (
 
-        <div style={{width: "100%", height: "100%", position: "relative"}} ref={rootDiv}>
+        <div id="ppiMain" style={{width: "100%", height: "100%", position: "relative"}} ref={rootDiv}>
+            <div style={{position: "absolute", width: "100%", height: "100%"}}>
+                <canvas id="canvasRadarVideo" width={width} height={height} ref={canvasRadarVideoRef}/>
+            </div>
             <div style={{position: "absolute", width: "100%", height: "100%"}}>
                 {/*<button className="tool-yenile" onClick={() => ppiGraph.resetCanvas()}></button>*/}
                 <canvas id="canvas2d" width={width} height={height} ref={canvas2dRef}/>

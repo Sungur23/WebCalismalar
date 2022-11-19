@@ -1,44 +1,43 @@
 package com.aselsan.rehis.radar.rapormodel.endpoint;
 
 import com.aselsan.rehis.radar.rapormodel.model.TrackModel;
-import com.aselsan.rehis.radar.rapormodel.service.SimulationService;
+import com.aselsan.rehis.radar.rapormodel.service.TrackSimulationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
-@RequestMapping(path = "api/v1/simulation")
+@RequestMapping(path = "api/v1/simulation/track")
 public class SimulationController {
 
-    private final SimulationService simulationService;
+    private final TrackSimulationService trackSimulationService;
 
     @Autowired
-    public SimulationController(SimulationService simulationService) {
-        this.simulationService = simulationService;
+    public SimulationController(TrackSimulationService trackSimulationService) {
+        this.trackSimulationService = trackSimulationService;
     }
 
     @PostMapping(path = "state")
     public void setSimulationState(@RequestBody Boolean state) {
-        simulationService.setState(state);
+        trackSimulationService.setState(state);
     }
 
     @GetMapping(path = "tracks")
     public List<TrackModel> getTracks() {
-        return simulationService.getTracks();
+        return trackSimulationService.getTracks();
     }
 
     @PostMapping(path = "{addTrack}")
     public void registerNewTrack(@RequestBody TrackModel track) {
-        simulationService.addNewTrack(track);
+        trackSimulationService.addNewTrack(track);
     }
 
     @DeleteMapping(path = "delTrack/{trackId}")
     public void deleteTrack(
             @PathVariable("trackId") Long trackId) {
-        simulationService.deleteTrack(trackId);
+        trackSimulationService.deleteTrack(trackId);
     }
 
     @PutMapping(path = "putTrack/{trackId}")
@@ -49,6 +48,6 @@ public class SimulationController {
             @RequestParam(required = true) double range,
             @RequestParam(required = true) double elevation) {
 
-        simulationService.updateTrack(trackId, type, azimuth, range, elevation);
+        trackSimulationService.updateTrack(trackId, type, azimuth, range, elevation);
     }
 }
