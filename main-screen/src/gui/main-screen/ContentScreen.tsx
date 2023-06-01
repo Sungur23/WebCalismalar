@@ -21,7 +21,7 @@ var graphicType = 0;
 const axis =
     new Axis("Metre",
         "m", "m",
-        "#89CFF0", AxisVisualType.POINT, [0, 900], 70);
+        "#89CFF0", AxisVisualType.POINT, [0, 1000], 70);
 
 const axis2 =
     new Axis("Metre",

@@ -29,6 +29,11 @@ public class SimulationController {
         return trackSimulationService.getTracks();
     }
 
+    @GetMapping(path = "tracksDB")
+    public List<TrackModel> getTracksDB() {
+        return trackSimulationService.getTracksfromDB();
+    }
+
     @PostMapping(path = "{addTrack}")
     public void registerNewTrack(@RequestBody TrackModel track) {
         trackSimulationService.addNewTrack(track);

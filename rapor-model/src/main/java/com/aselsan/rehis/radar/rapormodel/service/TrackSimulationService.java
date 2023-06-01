@@ -41,7 +41,6 @@ public class TrackSimulationService {
             }
         }
     };
-
     @Autowired
     public TrackSimulationService(TrackRepository trackRepository, ModelConfig modelConfig, VideoSimulation videoSimulation) {
         this.trackRepository = trackRepository;
@@ -131,6 +130,9 @@ public class TrackSimulationService {
         return model;
     }
 
+    public List<TrackModel> getTracksfromDB() {
+        return trackRepository.findAll();
+    }
 
     public void addNewTrack(TrackModel track) {
         Optional<TrackModel> trackOptional = trackRepository
